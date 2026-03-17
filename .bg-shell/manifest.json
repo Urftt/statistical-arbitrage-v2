@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "591b0f0e",
+    "label": "fastapi-api",
+    "command": "uv run python run_api.py",
+    "cwd": "/Users/luckleineschaars/repos/statistical-arbitrage-v2",
+    "startedAt": 1773765292154,
+    "processType": "server",
+    "group": "m001-s06-stack",
+    "readyPattern": null,
+    "readyPort": 8000,
+    "pid": 15063
+  },
+  {
+    "id": "efef2208",
+    "label": "next-dev",
+    "command": "cd frontend && npm run dev",
+    "cwd": "/Users/luckleineschaars/repos/statistical-arbitrage-v2",
+    "startedAt": 1773765292155,
+    "processType": "server",
+    "group": "m001-s06-stack",
+    "readyPattern": null,
+    "readyPort": 3000,
+    "pid": 15064
+  }
+]
