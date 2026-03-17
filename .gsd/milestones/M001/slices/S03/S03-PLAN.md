@@ -52,7 +52,7 @@
 
 ## Tasks
 
-- [ ] **T01: Extend API types and build shared Academy components** `est:25m`
+- [x] **T01: Extend API types and build shared Academy components** `est:25m`
   - Why: Everything downstream depends on correct TypeScript types for the cointegration response and on the two shared components (AcademyStepper, EducationalPanel). Building these first unblocks all 3 steps.
   - Files: `frontend/lib/api.ts`, `frontend/components/academy/AcademyStepper.tsx`, `frontend/components/academy/EducationalPanel.tsx`
   - Do: (1) Add missing fields to `CointegrationResponse` interface in `lib/api.ts`: `critical_values`, `intercept`, `interpretation`, `half_life_note`, `spread_stationarity`, `spread_properties` — match the Pydantic models in `api/schemas.py`. (2) Build `AcademyStepper` — Mantine Stepper with 6 steps from TEACHING_STEPS registry (label, description, icon), free navigation via `allowNextStepsSelect`, controlled `active` prop + `onStepClick` handler. (3) Build `EducationalPanel` — Mantine Accordion with `multiple` variant, 3 items (💡 Intuition, 🔧 How It Works, 📊 Your Pair), `defaultValue={["intuition"]}` to auto-expand first panel. Props: `intuition: ReactNode`, `mechanics: ReactNode`, `pairSpecific: ReactNode`.

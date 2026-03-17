@@ -53,15 +53,47 @@ export interface CointegrationRequest {
   days_back?: number;
 }
 
+export interface CriticalValues {
+  one_pct: number;
+  five_pct: number;
+  ten_pct: number;
+}
+
+export interface StationarityResult {
+  name: string;
+  adf_statistic: number;
+  p_value: number;
+  critical_values: CriticalValues;
+  is_stationary: boolean;
+  interpretation: string;
+}
+
+export interface SpreadProperties {
+  mean: number;
+  std: number;
+  min: number;
+  max: number;
+  median: number;
+  skewness: number;
+  kurtosis: number;
+  autocorr_lag1: number;
+}
+
 export interface CointegrationResponse {
   cointegration_score: number;
   p_value: number;
+  critical_values: CriticalValues;
   is_cointegrated: boolean;
   hedge_ratio: number;
+  intercept: number;
   spread: (number | null)[];
   zscore: (number | null)[];
   half_life: number | null;
+  half_life_note: string | null;
   correlation: number;
+  spread_stationarity: StationarityResult;
+  spread_properties: SpreadProperties;
+  interpretation: string;
   timestamps: number[];
 }
 

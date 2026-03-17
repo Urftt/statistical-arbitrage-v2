@@ -73,6 +73,13 @@ Extend the `CointegrationResponse` TypeScript interface to match all fields the 
 - `frontend/components/charts/PlotlyChart.tsx` — existing pattern for `'use client'` + dynamic import (reference for component conventions)
 - `@mantine/core` v8.3.17, `@tabler/icons-react` v3.40.0 — already installed
 
+## Observability Impact
+
+- **TypeScript type safety**: `npx tsc --noEmit` catches any mismatch between the `CointegrationResponse` interface and actual API usage across all consuming components. If a downstream task adds a field reference that doesn't exist, tsc will fail.
+- **Build verification**: `npm run build` exits 0 confirms SSR safety — no `window`/`document` references in AcademyStepper or EducationalPanel.
+- **Import verification**: Any downstream file that imports `AcademyStepper`, `EducationalPanel`, `TEACHING_STEPS`, `CriticalValues`, `StationarityResult`, or `SpreadProperties` will get a compile error if names/paths are wrong.
+- **Failure shapes**: If the API schema changes and CointegrationResponse drifts, downstream fetch calls will have type mismatches caught at compile time, not runtime.
+
 ## Expected Output
 
 - `frontend/lib/api.ts` — extended with `CriticalValues`, `StationarityResult`, `SpreadProperties` interfaces and 6 new fields on `CointegrationResponse`
