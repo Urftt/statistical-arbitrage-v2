@@ -4,17 +4,6 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
-### R005 — FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
-- Class: core-capability
-- Status: active
-- Description: FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
-- Why it matters: Clean separation between analysis engine and UI. The analysis code is already UI-free — this makes the split explicit.
-- Source: user
-- Primary owning slice: M001/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: analysis/research.py already has zero Dash imports. Migration path is natural.
-
 ### R008 — Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
 - Class: primary-user-loop
 - Status: active
@@ -102,17 +91,6 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: M002/S01, M002/S03
 - Validation: unmapped
 - Notes: Applies to research module takeaways, backtest summaries, and parameter recommendations.
-
-### R016 — The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
-- Class: continuity
-- Status: active
-- Description: The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
-- Why it matters: This is months of collected data. The pipeline works. Don't break it.
-- Source: user
-- Primary owning slice: M001/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: cache_manager.py and bitvavo_client.py stay as-is. API wraps them.
 
 ### R017 — Run strategies against live market data with simulated order execution. Track positions, fills, and P&L as if trading real money.
 - Class: core-capability
@@ -237,6 +215,17 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive in React against the FastAPI backend. S06 final live UAT closed the route loop Academy → Glossary → Deep Dive → Scanner → Academy on localhost and confirmed the running app no longer depends on Dash surfaces.
 - Notes: Advanced significantly by S05, but left active until S06 confirmed the complete frontend replacement experience.
 
+### R005 — FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
+- Class: core-capability
+- Status: validated
+- Description: FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
+- Why it matters: Clean separation between analysis engine and UI. The analysis code is already UI-free — this makes the split explicit.
+- Source: user
+- Primary owning slice: M001/S01
+- Supporting slices: none
+- Validation: S01 delivered and tested the FastAPI REST layer: 7 endpoints wrap PairAnalysis/DataCacheManager with 51 API tests, OpenAPI docs, and live imports. The frontend consumed these endpoints across S03-S05, proving the UI no longer runs Python analysis directly.
+- Notes: M001 covers the PairAnalysis/data-pipeline API surfaces needed by the new frontend. Research-module endpoints remain M002 scope.
+
 ### R006 — A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
 - Class: primary-user-loop
 - Status: validated
@@ -258,6 +247,17 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: none
 - Validation: S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop.
 - Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
+
+### R016 — The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
+- Class: continuity
+- Status: validated
+- Description: The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
+- Why it matters: This is months of collected data. The pipeline works. Don't break it.
+- Source: user
+- Primary owning slice: M001/S01
+- Supporting slices: none
+- Validation: S01 preserved the existing CCXT → Bitvavo → parquet cache pipeline and exposed all 44 cached datasets through GET /api/pairs and direct parquet-backed OHLCV reads. API routers intentionally read parquet files directly and never trigger Bitvavo fetches; S03-S05 consumed the cached data successfully in the running app.
+- Notes: Continuity requirement satisfied for M001: the working cache and data pipeline remain intact and accessible through the API layer.
 
 ### R026 — Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
 - Class: primary-user-loop
@@ -326,7 +326,7 @@ This file is the explicit capability and coverage contract for the project.
 | R002 | primary-user-loop | validated | M001/S03 | M001/S04 | All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps. |
 | R003 | primary-user-loop | validated | M001/S04 | none | Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab. |
 | R004 | core-capability | validated | M001/S02 | M001/S03, M001/S04, M001/S05, M001/S06 | S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive in React against the FastAPI backend. S06 final live UAT closed the route loop Academy → Glossary → Deep Dive → Scanner → Academy on localhost and confirmed the running app no longer depends on Dash surfaces. |
-| R005 | core-capability | active | M001/S01 | none | unmapped |
+| R005 | core-capability | validated | M001/S01 | none | S01 delivered and tested the FastAPI REST layer: 7 endpoints wrap PairAnalysis/DataCacheManager with 51 API tests, OpenAPI docs, and live imports. The frontend consumed these endpoints across S03-S05, proving the UI no longer runs Python analysis directly. |
 | R006 | primary-user-loop | validated | M001/S02 | M001/S03, M001/S05 | S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work. |
 | R007 | quality-attribute | validated | M001/S02 | none | S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop. |
 | R008 | primary-user-loop | active | M002/S01 | none | unmapped |
@@ -337,7 +337,7 @@ This file is the explicit capability and coverage contract for the project.
 | R013 | constraint | active | M002/S02 | none | unmapped |
 | R014 | differentiator | active | M002/S03 | none | unmapped |
 | R015 | quality-attribute | active | M002/S02 | M002/S01, M002/S03 | unmapped |
-| R016 | continuity | active | M001/S01 | none | unmapped |
+| R016 | continuity | validated | M001/S01 | none | S01 preserved the existing CCXT → Bitvavo → parquet cache pipeline and exposed all 44 cached datasets through GET /api/pairs and direct parquet-backed OHLCV reads. API routers intentionally read parquet files directly and never trigger Bitvavo fetches; S03-S05 consumed the cached data successfully in the running app. |
 | R017 | core-capability | active | M003/S01 | none | unmapped |
 | R018 | primary-user-loop | active | M003/S02 | M004 | unmapped |
 | R019 | core-capability | active | M004/S01 | none | unmapped |
@@ -353,7 +353,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 17
-- Mapped to slices: 17
-- Validated: 7 (R001, R002, R003, R004, R006, R007, R026)
+- Active requirements: 15
+- Mapped to slices: 15
+- Validated: 9 (R001, R002, R003, R004, R005, R006, R007, R016, R026)
 - Unmapped active requirements: 0
