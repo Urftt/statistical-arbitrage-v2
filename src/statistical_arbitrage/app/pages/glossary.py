@@ -1,0 +1,253 @@
+"""
+Glossary page — searchable stat arb terms.
+
+Cross-linked from educational panels in the teaching flow.
+"""
+
+import dash_mantine_components as dmc
+from dash import Input, Output, dcc, html, no_update
+from dash_iconify import DashIconify
+
+
+def _icon(name: str, size: int = 16) -> DashIconify:
+    return DashIconify(icon=name, width=size, height=size)
+
+
+# ─── Glossary data ───────────────────────────────────────────────────────────
+
+GLOSSARY_TERMS = [
+    {
+        "term": "Statistical Arbitrage",
+        "aka": "stat arb",
+        "definition": (
+            "A quantitative trading strategy that exploits statistical relationships between "
+            "assets. Unlike traditional arbitrage (risk-free profit), stat arb relies on "
+            "historical patterns that may not hold in the future — hence the 'statistical' qualifier."
+        ),
+    },
+    {
+        "term": "Pairs Trading",
+        "aka": "pair trading",
+        "definition": (
+            "A market-neutral strategy that trades two cointegrated assets. When their spread "
+            "deviates from the historical mean, you go long the underperformer and short the "
+            "outperformer, betting that the spread reverts."
+        ),
+    },
+    {
+        "term": "Correlation",
+        "aka": "Pearson correlation",
+        "definition": (
+            "A measure of linear co-movement between two series, ranging from -1 to +1. "
+            "High correlation means assets tend to move in the same direction, but says nothing "
+            "about whether the gap between them is stable. Correlation ≠ cointegration."
+        ),
+    },
+    {
+        "term": "Cointegration",
+        "aka": "",
+        "definition": (
+            "A statistical property where a linear combination of two non-stationary series "
+            "produces a stationary series (the spread). Unlike correlation, cointegration implies "
+            "a long-run equilibrium — the spread always reverts to its mean. This is the "
+            "foundation of pairs trading."
+        ),
+    },
+    {
+        "term": "Stationarity",
+        "aka": "stationary process",
+        "definition": (
+            "A time series whose statistical properties (mean, variance) don't change over time. "
+            "Stock prices are non-stationary (they trend), but the spread between cointegrated "
+            "assets should be stationary — oscillating around a constant mean."
+        ),
+    },
+    {
+        "term": "Mean Reversion",
+        "aka": "",
+        "definition": (
+            "The tendency of a series to return to its average value over time. A mean-reverting "
+            "spread is the core requirement for pairs trading — when it deviates, you trade "
+            "expecting it to come back."
+        ),
+    },
+    {
+        "term": "ADF Test",
+        "aka": "Augmented Dickey-Fuller test",
+        "definition": (
+            "A statistical test for stationarity. The null hypothesis is that the series has a "
+            "unit root (is non-stationary). A sufficiently negative test statistic (low p-value) "
+            "rejects the null — evidence that the series is stationary. Used to test the spread "
+            "in the Engle-Granger cointegration procedure."
+        ),
+    },
+    {
+        "term": "p-value",
+        "aka": "",
+        "definition": (
+            "The probability of observing results at least as extreme as the test statistic, "
+            "assuming the null hypothesis is true. In cointegration testing, p < 0.05 means "
+            "there's less than 5% chance the spread is non-stationary — strong evidence for "
+            "cointegration."
+        ),
+    },
+    {
+        "term": "Hedge Ratio",
+        "aka": "beta, β",
+        "definition": (
+            "The ratio of positions in the two assets that minimizes portfolio variance. "
+            "Calculated from OLS regression: if β = 20, you hold €20 of asset 1 for every "
+            "€1 of asset 2. This ratio constructs the most stationary spread possible."
+        ),
+    },
+    {
+        "term": "OLS Regression",
+        "aka": "Ordinary Least Squares",
+        "definition": (
+            "A method to fit a straight line through data by minimizing the sum of squared "
+            "differences between actual and predicted values. In pairs trading, OLS finds the "
+            "hedge ratio (slope) and intercept that best describe the relationship between "
+            "two asset prices."
+        ),
+    },
+    {
+        "term": "Spread",
+        "aka": "residuals",
+        "definition": (
+            "The difference between one asset's price and the hedge ratio times the other "
+            "asset's price: spread = price₁ − β × price₂. When cointegrated, this spread "
+            "is stationary and oscillates around a mean — deviations are your trading signals."
+        ),
+    },
+    {
+        "term": "Z-Score",
+        "aka": "standardized score",
+        "definition": (
+            "The number of standard deviations the spread is from its rolling mean: "
+            "z = (spread − mean) / std. A z-score of +2 means the spread is 2σ above average — "
+            "unusually wide. Z-scores standardize the spread so you can set universal entry/exit "
+            "thresholds regardless of the spread's scale."
+        ),
+    },
+    {
+        "term": "Standard Deviation",
+        "aka": "σ, sigma",
+        "definition": (
+            "A measure of how spread out values are from their mean. In pairs trading, σ bands "
+            "around the spread show what 'normal' variability looks like. Moves beyond ±2σ "
+            "are statistically unusual — potential trade signals."
+        ),
+    },
+    {
+        "term": "Half-Life",
+        "aka": "mean reversion speed",
+        "definition": (
+            "The expected number of periods for the spread to revert halfway back to its mean. "
+            "Calculated from the Ornstein-Uhlenbeck process. A half-life of 10 means if the "
+            "spread is 2σ away, you'd expect it to be ~1σ away after 10 periods. Shorter "
+            "half-lives mean faster reversion — better for trading."
+        ),
+    },
+    {
+        "term": "Entry Signal",
+        "aka": "entry threshold",
+        "definition": (
+            "The z-score level that triggers opening a position. Typically ±2.0σ. When "
+            "z < −2: go long the spread (expect widening). When z > +2: go short the spread "
+            "(expect narrowing). Lower thresholds generate more trades but more false positives."
+        ),
+    },
+    {
+        "term": "Exit Signal",
+        "aka": "exit threshold",
+        "definition": (
+            "The z-score level that triggers closing a position. Typically ±0.5σ (near zero). "
+            "When the spread returns to near its mean, the trade has played out. Exiting too "
+            "early leaves money on the table; too late risks the spread reversing again."
+        ),
+    },
+    {
+        "term": "Engle-Granger Test",
+        "aka": "EG test",
+        "definition": (
+            "A two-step cointegration test: (1) regress one asset on the other to get the "
+            "hedge ratio and residuals (spread), (2) test the residuals for stationarity using "
+            "the ADF test. If the residuals are stationary, the assets are cointegrated. "
+            "Note: the test is order-sensitive — switching which asset is dependent can change results."
+        ),
+    },
+]
+
+
+# ─── Layout ──────────────────────────────────────────────────────────────────
+
+def layout():
+    """Glossary page layout."""
+    return html.Div([
+        dmc.Group([
+            dmc.Title("Glossary", order=2),
+            dmc.Badge("Statistical Arbitrage Terms", variant="light", color="grape"),
+        ], gap="md", mb="xs"),
+        dmc.Text(
+            "Plain-English definitions of all the terms used in the teaching flow.",
+            c="dimmed", size="sm", mb="lg",
+        ),
+
+        # Search
+        dmc.TextInput(
+            id="glossary-search",
+            placeholder="Search terms...",
+            leftSection=_icon("tabler:search", 18),
+            mb="lg",
+            size="md",
+        ),
+
+        # Terms container
+        html.Div(id="glossary-terms"),
+    ])
+
+
+def _render_terms(search: str = "") -> list:
+    """Render glossary terms, filtered by search."""
+    search = (search or "").lower().strip()
+
+    terms = GLOSSARY_TERMS
+    if search:
+        terms = [
+            t for t in terms
+            if search in t["term"].lower()
+            or search in t.get("aka", "").lower()
+            or search in t["definition"].lower()
+        ]
+
+    if not terms:
+        return [dmc.Text("No matching terms found.", c="dimmed", fs="italic")]
+
+    items = []
+    for t in terms:
+        aka = f" ({t['aka']})" if t.get("aka") else ""
+        slug = t["term"].lower().replace(" ", "-").replace("/", "-")
+        items.append(
+            dmc.Paper([
+                dmc.Group([
+                    dmc.Title(t["term"], order=4),
+                    dmc.Text(aka, c="dimmed", size="sm") if aka else None,
+                ], gap="xs"),
+                dmc.Text(t["definition"], size="sm", mt="xs"),
+            ], p="md", radius="md", withBorder=True, mb="sm",
+               id=f"glossary-{slug}")
+        )
+    return items
+
+
+# ─── Callbacks ───────────────────────────────────────────────────────────────
+
+def register_callbacks(app):
+    """Register glossary callbacks."""
+
+    @app.callback(
+        Output("glossary-terms", "children"),
+        Input("glossary-search", "value"),
+    )
+    def filter_terms(search):
+        return _render_terms(search)

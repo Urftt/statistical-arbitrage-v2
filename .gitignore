@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environments
+.venv/
+.env
+config/.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (not committed — local cache)
+data/raw/*
+data/processed/*
+data/results/*
+data/cache
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/results/.gitkeep
+
+# UV
+# uv.lock is committed for reproducibility
+
+# GSD
+.gsd/runtime/
+.gsd/worktrees/
+.gsd/auto.lock
+.gsd/STATE.md
+.gsd/gsd.db
+.gsd/gsd.db-shm
+.gsd/gsd.db-wal
+.gsd/metrics.json
+.gsd/completed-units.json
+.gsd/forensics/
+.gsd/parallel/
+.gsd/activity/
