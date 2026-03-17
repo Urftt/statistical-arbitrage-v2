@@ -96,6 +96,13 @@ The existing Dash layout uses these exact specifications:
 - Visiting localhost:3000 directly → redirects to /academy
 - Active sidebar link is highlighted
 
+## Observability Impact
+
+- **New runtime signals:** Browser console errors if AppShell/NavLink imports fail; `usePathname()` throws if used outside App Router context; redirect loop if `(dashboard)/page.tsx` and root `page.tsx` both exist
+- **Inspection surfaces:** `localhost:3000` shows visual shell, browser URL bar confirms route changes, React DevTools shows AppShell component tree with Sidebar/Header children
+- **Failure visibility:** Missing sidebar = Sidebar.tsx import error in `(dashboard)/layout.tsx`; broken nav = NavLink `component={Link}` not passed correctly (full page reload instead of SPA transition); no active highlight = `usePathname()` returns unexpected value; blank page = conflicting `page.tsx` at root vs `(dashboard)` route group
+- **How to inspect:** Check sidebar renders 4 links via `browser_find` with role "link"; verify URL changes on click via `browser_assert` with `url_contains`; check `npm run build` output for static route list
+
 ## Inputs
 
 - `frontend/` project from T01 with Mantine configured, `lib/theme.ts` with theme object

@@ -55,7 +55,7 @@
   - Verify: `cd frontend && npm run build` succeeds; `npm run dev` shows blank dark page at localhost:3000
   - Done when: `npm run build` exits 0 and browser shows dark background at localhost:3000
 
-- [ ] **T02: Build dashboard AppShell with sidebar navigation and placeholder pages** `est:1h`
+- [x] **T02: Build dashboard AppShell with sidebar navigation and placeholder pages** `est:1h`
   - Why: Creates the visual shell that all pages live inside. Closes the "app shows sidebar navigation and page routing" part of the demo. Advances R004 (Next.js replacing Dash).
   - Files: `frontend/app/(dashboard)/layout.tsx`, `frontend/components/layout/Sidebar.tsx`, `frontend/components/layout/Header.tsx`, `frontend/app/(dashboard)/page.tsx`, `frontend/app/(dashboard)/academy/page.tsx`, `frontend/app/(dashboard)/scanner/page.tsx`, `frontend/app/(dashboard)/deep-dive/page.tsx`, `frontend/app/(dashboard)/glossary/page.tsx`
   - Do: Create `(dashboard)/layout.tsx` with Mantine `<AppShell>` (header height 60, navbar width 240). Build `Sidebar.tsx` with NavLinks matching Dash structure: Pair Scanner (tabler:search → /scanner), Pair Deep Dive (tabler:microscope → /deep-dive), divider, Academy (tabler:school → /academy, description "Step-by-step guide"), Glossary (tabler:vocabulary → /glossary, description "Stat arb terms"), spacer, version text "StatArb Research v0.1". Build `Header.tsx` with logo group (gradient ThemeIcon + "StatArb Research" text) and placeholder pair selector group (3 Select components — asset1, asset2, timeframe — not wired yet). Root `(dashboard)/page.tsx` redirects to `/academy`. 4 placeholder pages each show their title. Use `@tabler/icons-react` for icons. Active NavLink highlighting via `usePathname()`.
