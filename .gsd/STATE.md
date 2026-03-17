@@ -1,9 +1,9 @@
 # GSD State
 
 **Active Milestone:** M001: Frontend Foundation + Academy
-**Active Slice:** S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)
-**Phase:** executing
-**Requirements Status:** 23 active · 0 validated · 3 deferred · 2 out of scope
+**Active Slice:** S06: Glossary + Polish + Integration Test
+**Phase:** execution-ready
+**Requirements Status:** 20 active · 3 validated · 3 deferred · 2 out of scope
 
 ## Milestone Registry
 - 🔄 **M001:** Frontend Foundation + Academy
@@ -18,4 +18,4 @@
 - None
 
 ## Next Action
-Execute T01 of slice S04 (Build StepCointegrationTest component and wire step 4 into Academy).
+Execute S06/T01 — port the shared glossary contract and replace the glossary stub page.
