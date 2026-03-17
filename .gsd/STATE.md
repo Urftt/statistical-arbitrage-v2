@@ -1,7 +1,7 @@
 # GSD State
 
 **Active Milestone:** M001: Frontend Foundation + Academy
-**Active Slice:** S03: Academy Step Engine + First 3 Steps
+**Active Slice:** S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)
 **Phase:** executing
 **Requirements Status:** 23 active · 0 validated · 3 deferred · 2 out of scope
 
@@ -18,4 +18,4 @@
 - None
 
 ## Next Action
-Execute S03/T01 (Extend API types and build shared Academy components).
+Execute T01 of slice S04 (Build StepCointegrationTest component and wire step 4 into Academy).
