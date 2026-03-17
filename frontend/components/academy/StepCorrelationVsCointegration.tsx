@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { IconArrowsShuffle, IconInfoCircle } from '@tabler/icons-react';
 import PlotlyChart from '@/components/charts/PlotlyChart';
+import { GlossaryLink } from '@/components/glossary/GlossaryLink';
 import { EducationalPanel } from './EducationalPanel';
 import type { CointegrationResponse } from '@/lib/api';
 import type { Data, Layout } from 'plotly.js';
@@ -285,10 +286,11 @@ export function StepCorrelationVsCointegration({
           mechanics={
             <Stack gap="xs">
               <Text size="sm">
-                <strong>Correlation</strong> measures co-movement of returns
-                (short-term direction). <strong>Cointegration</strong> measures
-                whether a linear combination of prices is stationary (long-term
-                equilibrium).
+                <GlossaryLink term="correlation">Correlation</GlossaryLink>{' '}
+                measures co-movement of returns (short-term direction).{' '}
+                <GlossaryLink term="cointegration">Cointegration</GlossaryLink>{' '}
+                measures whether a linear combination of prices is stationary
+                (long-term equilibrium).
               </Text>
               <Text size="sm" fw={500}>
                 Key differences:

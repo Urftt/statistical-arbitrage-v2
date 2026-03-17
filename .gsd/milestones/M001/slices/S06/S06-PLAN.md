@@ -47,7 +47,7 @@
   - Verify: `cd frontend && npx tsc --noEmit && npm run build`; live check `/glossary`, search for `cointegration`, `beta`, and `mean`, then open `/glossary#glossary-cointegration` and confirm the correct card is visible.
   - Done when: the glossary page renders the full dataset, search behaves like the Dash version, and the shared slug helper is ready for Academy links.
 
-- [ ] **T02: Wire Academy glossary links into steps 2-6 and close the remaining polish gaps** `est:50m`
+- [x] **T02: Wire Academy glossary links into steps 2-6 and close the remaining polish gaps** `est:50m`
   - Why: The glossary page alone does not satisfy S06 — the Academy must link into it cleanly, and this is the moment to fix any focused consistency issues discovered while wiring those routes together.
   - Files: `frontend/components/academy/StepPriceComparison.tsx`, `frontend/components/academy/StepCorrelationVsCointegration.tsx`, `frontend/components/academy/StepCointegrationTest.tsx`, `frontend/components/academy/StepSpread.tsx`, `frontend/components/academy/StepZScoreSignals.tsx`, `frontend/components/glossary/GlossaryLink.tsx`, `src/statistical_arbitrage/app/pages/learn.py`
   - Do: Follow the Dash `learn.py` glossary-link placements exactly — Step 2: correlation; Step 3: correlation + cointegration; Step 4: cointegration + hedge ratio + ADF test; Step 5: spread + mean reversion + stationarity; Step 6: z-score + spread. Use the shared glossary helper so hashes cannot drift, keep `EducationalPanel` API unchanged, and make only focused polish fixes needed to keep link styling, spacing, route affordances, and dark-theme consistency solid across Academy, Glossary, Header, and Sidebar surfaces.

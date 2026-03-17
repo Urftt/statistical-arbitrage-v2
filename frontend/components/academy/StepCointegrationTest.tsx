@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconFlask, IconInfoCircle } from '@tabler/icons-react';
 import PlotlyChart from '@/components/charts/PlotlyChart';
+import { GlossaryLink } from '@/components/glossary/GlossaryLink';
 import { EducationalPanel } from './EducationalPanel';
 import type { CointegrationResponse, OHLCVResponse } from '@/lib/api';
 import type { Data, Layout, Shape } from 'plotly.js';
@@ -492,23 +493,26 @@ export function StepCointegrationTest({
           mechanics={
             <Stack gap="xs">
               <Text size="sm" fw={500}>
-                The Engle-Granger cointegration test works in two steps:
+                The Engle-Granger <GlossaryLink term="cointegration" /> test
+                works in two steps:
               </Text>
               <List size="sm" spacing="xs">
                 <List.Item>
                   <Text size="sm" fw={500} span>Step 1: Regression</Text>
                   <Text size="sm" span>
-                    {' '}— Regress {asset1} on {asset2} to find the hedge ratio
-                    (β = {hedge.toFixed(4)}). The regression line shows the
-                    long-run equilibrium relationship.
+                    {' '}— Regress {asset1} on {asset2} to find the{' '}
+                    <GlossaryLink term="hedge ratio" /> (β = {hedge.toFixed(4)}). The
+                    regression line shows the long-run equilibrium
+                    relationship.
                   </Text>
                 </List.Item>
                 <List.Item>
-                  <Text size="sm" fw={500} span>Step 2: ADF test on residuals</Text>
+                  <Text size="sm" fw={500} span>Step 2: </Text>
+                  <GlossaryLink term="ADF test" />
                   <Text size="sm" span>
-                    {' '}— The residuals (spread) from step 1 are tested for
-                    stationarity. If the spread is stationary, the pair is
-                    cointegrated.
+                    {' '}on residuals — The residuals (spread) from step 1 are
+                    tested for stationarity. If the spread is stationary, the
+                    pair is cointegrated.
                   </Text>
                 </List.Item>
               </List>

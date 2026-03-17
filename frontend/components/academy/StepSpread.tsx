@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconChartAreaLine, IconInfoCircle } from '@tabler/icons-react';
 import PlotlyChart from '@/components/charts/PlotlyChart';
+import { GlossaryLink } from '@/components/glossary/GlossaryLink';
 import { EducationalPanel } from './EducationalPanel';
 import type { CointegrationResponse } from '@/lib/api';
 import type { Data, Layout, Shape } from 'plotly.js';
@@ -426,7 +427,8 @@ export function StepSpread({
           mechanics={
             <Stack gap="xs">
               <Text size="sm">
-                The spread is constructed from the cointegration regression:
+                The <GlossaryLink term="spread" /> is constructed from the
+                cointegration regression:
               </Text>
               <Code block>
                 {`spread = ${asset1} − (${hedge.toFixed(4)} × ${asset2})`}
@@ -434,8 +436,9 @@ export function StepSpread({
               <Text size="sm">
                 The rolling mean and standard deviation create dynamic bands. A
                 stationary spread oscillates around a stable mean — this is{' '}
-                <strong>mean reversion</strong> in action. The rolling window
-                controls how much history is used for the bands:
+                <GlossaryLink term="mean reversion">mean reversion</GlossaryLink>{' '}
+                in action. The rolling window controls how much history is used
+                for the bands:
               </Text>
               <List size="sm" spacing="xs">
                 <List.Item>
@@ -449,9 +452,10 @@ export function StepSpread({
               </List>
               <Text size="sm" c="dimmed">
                 The histogram should look roughly bell-shaped (normal) and
-                centered — this is a visual check for stationarity. A skewed or
-                fat-tailed distribution warns that the spread may not behave as
-                expected.
+                centered — this is a visual check for{' '}
+                <GlossaryLink term="stationarity">stationarity</GlossaryLink>.
+                A skewed or fat-tailed distribution warns that the spread may
+                not behave as expected.
               </Text>
             </Stack>
           }

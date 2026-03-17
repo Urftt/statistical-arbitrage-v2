@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconAdjustments, IconInfoCircle } from '@tabler/icons-react';
 import PlotlyChart from '@/components/charts/PlotlyChart';
+import { GlossaryLink } from '@/components/glossary/GlossaryLink';
 import { EducationalPanel } from './EducationalPanel';
 import type { CointegrationResponse } from '@/lib/api';
 import type { Data, Layout, Shape } from 'plotly.js';
@@ -615,7 +616,8 @@ export function StepZScoreSignals({
           mechanics={
             <Stack gap="xs">
               <Text size="sm">
-                The z-score standardizes the spread:
+                The <GlossaryLink term="z-score" /> standardizes the{' '}
+                <GlossaryLink term="spread" />:
               </Text>
               <Code block>
                 {`z-score = (spread − rolling_mean) / rolling_std\n\nspread = ${asset1} − (${hedge.toFixed(4)} × ${asset2})`}

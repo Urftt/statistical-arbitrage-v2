@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { IconChartLine, IconInfoCircle } from '@tabler/icons-react';
 import PlotlyChart from '@/components/charts/PlotlyChart';
+import { GlossaryLink } from '@/components/glossary/GlossaryLink';
 import { EducationalPanel } from './EducationalPanel';
 import type { CointegrationResponse, OHLCVResponse } from '@/lib/api';
 import type { Data, Layout, Shape } from 'plotly.js';
@@ -204,8 +205,8 @@ export function StepPriceComparison({
                 and 8% respectively.
               </Text>
               <Text size="sm">
-                The Pearson correlation coefficient (r) measures linear
-                co-movement:
+                The Pearson <GlossaryLink term="correlation" /> coefficient
+                (r) measures linear co-movement:
               </Text>
               <Code block>
                 r = cov(returns₁, returns₂) / (σ₁ × σ₂)

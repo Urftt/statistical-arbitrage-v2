@@ -52,3 +52,9 @@ Connect the completed glossary into the Academy without changing the established
 - `frontend/components/academy/StepSpread.tsx` — educational text links spread, mean reversion, and stationarity.
 - `frontend/components/academy/StepZScoreSignals.tsx` — educational text links z-score and spread.
 - Any narrowly scoped UI-owner file touched for polish — only if needed to preserve visual consistency while adding the links.
+
+## Observability Impact
+
+- Changed signals: Academy mechanics/education copy in steps 2-6 now exposes clickable glossary anchors that should update the browser URL to `/glossary#glossary-*` for the linked term.
+- Inspection path for future agents: inspect `frontend/components/academy/StepPriceComparison.tsx`, `StepCorrelationVsCointegration.tsx`, `StepCointegrationTest.tsx`, `StepSpread.tsx`, and `StepZScoreSignals.tsx` for `GlossaryLink` usage; verify runtime behavior from `/academy` by clicking links and confirming the resulting `/glossary#glossary-{slug}` hash plus the presence of the matching `[data-glossary-card="true"]` card id.
+- Failure visibility: broken wiring will show up as missing inline links, wrong hashes/slugs, navigation that stays on `/academy`, glossary loads without scrolling to the intended card, or dark-theme regressions such as unreadable link styling or broken inline wrapping in educational copy.
