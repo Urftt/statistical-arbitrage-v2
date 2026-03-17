@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M001: Frontend Foundation + Academy
-**Active Slice:** S01: FastAPI Backend + Data API
-**Phase:** planning
+**Active Slice:** S02: Next.js App Shell + Navigation
+**Phase:** executing
 **Requirements Status:** 23 active · 0 validated · 3 deferred · 2 out of scope
 
 ## Milestone Registry
@@ -18,4 +18,4 @@
 - None
 
 ## Next Action
-Plan slice S01 (FastAPI Backend + Data API).
+Execute S02/T01 (Scaffold Next.js project with Mantine dark theme).
