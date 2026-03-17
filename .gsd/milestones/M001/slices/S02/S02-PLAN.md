@@ -62,7 +62,7 @@
   - Verify: `npm run build` succeeds; browser shows dark AppShell with sidebar; clicking each nav link changes URL and shows correct placeholder page; root `/` goes to `/academy`
   - Done when: All 4 routes render inside the AppShell, navigation works, `npm run build` still passes
 
-- [ ] **T03: Wire global pair context, API client, and header pair selectors** `est:45m`
+- [x] **T03: Wire global pair context, API client, and header pair selectors** `est:45m`
   - Why: Closes R006 (persistent pair selector propagating to all pages). The API client is the typed fetch layer all downstream slices (S03–S06) use to call FastAPI.
   - Files: `frontend/contexts/PairContext.tsx`, `frontend/lib/api.ts`, `frontend/components/layout/Header.tsx`, `frontend/app/(dashboard)/layout.tsx`
   - Do: Create `PairContext.tsx` — React context with `{ asset1, asset2, timeframe, setAsset1, setAsset2, setTimeframe, pairs }`. `pairs` is the list from API. Context provider fetches `GET /api/pairs` on mount and populates the pair list. Default timeframe "1h". Create `lib/api.ts` — base URL from `NEXT_PUBLIC_API_URL` env var (default `http://localhost:8000`), typed fetch functions: `fetchPairs(): Promise<PairsListResponse>`, `fetchOHLCV(symbol, timeframe)`, `fetchCointegration(req)`, etc. TypeScript interfaces matching the API schemas from `api/schemas.py`. Wrap dashboard layout in `<PairProvider>`. Update `Header.tsx` to use `usePairContext()` — asset1/asset2 Selects show unique coin names from fetched pairs, timeframe Select has ["15m","1h","4h","1d"], selections update context. Create `frontend/.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000`.

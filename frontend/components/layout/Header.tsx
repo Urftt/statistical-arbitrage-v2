@@ -5,22 +5,36 @@ import {
   Select,
   Text,
   ThemeIcon,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconChartCandle,
   IconCoin,
   IconClock,
 } from '@tabler/icons-react';
+import { usePairContext } from '@/contexts/PairContext';
 
 const TIMEFRAME_OPTIONS = ['15m', '1h', '4h', '1d'];
 
 /**
- * Dashboard header with logo and placeholder pair selectors.
+ * Dashboard header with logo and global pair/timeframe selectors.
  *
- * The selectors are inert placeholders — T03 wires them to PairContext
- * and populates asset lists from the FastAPI /api/pairs endpoint.
+ * Selectors are wired to PairContext — asset lists are populated from
+ * GET /api/pairs on mount. Selections persist across page navigations.
  */
 export function Header() {
+  const {
+    asset1,
+    asset2,
+    timeframe,
+    setAsset1,
+    setAsset2,
+    setTimeframe,
+    coins,
+    loading,
+    error,
+  } = usePairContext();
+
   return (
     <Group justify="space-between" h="100%" px="md">
       {/* Logo */}
@@ -38,34 +52,57 @@ export function Header() {
         </Text>
       </Group>
 
-      {/* Pair selectors (placeholder — wired in T03) */}
+      {/* Pair selectors — wired to PairContext */}
       <Group gap="xs">
-        <Select
-          placeholder="Asset 1"
-          searchable
-          w={160}
-          size="sm"
-          leftSection={<IconCoin size={16} stroke={1.5} />}
-          data={[]}
-        />
+        <Tooltip
+          label={error ?? ''}
+          disabled={!error}
+          color="red"
+          withArrow
+        >
+          <Select
+            placeholder="Asset 1"
+            searchable
+            w={160}
+            size="sm"
+            leftSection={<IconCoin size={16} stroke={1.5} />}
+            data={coins}
+            value={asset1 || null}
+            onChange={(v) => setAsset1(v ?? '')}
+            disabled={loading}
+            error={!!error}
+          />
+        </Tooltip>
         <Text c="dimmed" size="lg">
           ×
         </Text>
-        <Select
-          placeholder="Asset 2"
-          searchable
-          w={160}
-          size="sm"
-          leftSection={<IconCoin size={16} stroke={1.5} />}
-          data={[]}
-        />
+        <Tooltip
+          label={error ?? ''}
+          disabled={!error}
+          color="red"
+          withArrow
+        >
+          <Select
+            placeholder="Asset 2"
+            searchable
+            w={160}
+            size="sm"
+            leftSection={<IconCoin size={16} stroke={1.5} />}
+            data={coins}
+            value={asset2 || null}
+            onChange={(v) => setAsset2(v ?? '')}
+            disabled={loading}
+            error={!!error}
+          />
+        </Tooltip>
         <Select
           placeholder="Timeframe"
           w={100}
           size="sm"
           leftSection={<IconClock size={16} stroke={1.5} />}
           data={TIMEFRAME_OPTIONS}
-          defaultValue="1h"
+          value={timeframe}
+          onChange={(v) => setTimeframe(v ?? '1h')}
         />
       </Group>
     </Group>
