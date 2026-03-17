@@ -8,6 +8,7 @@ import { StepPriceComparison } from '@/components/academy/StepPriceComparison';
 import { StepCorrelationVsCointegration } from '@/components/academy/StepCorrelationVsCointegration';
 import { StepCointegrationTest } from '@/components/academy/StepCointegrationTest';
 import { StepSpread } from '@/components/academy/StepSpread';
+import { StepZScoreSignals } from '@/components/academy/StepZScoreSignals';
 import { usePairContext } from '@/contexts/PairContext';
 import {
   fetchOHLCV,
@@ -167,12 +168,17 @@ export default function AcademyPage() {
             asset2={asset2}
           />
         );
-      default:
+      case 5:
         return (
-          <Text c="dimmed" ta="center" py="xl">
-            Steps 4–6 coming in S04
-          </Text>
+          <StepZScoreSignals
+            cointegrationData={cointData}
+            loading={cointLoading}
+            asset1={asset1}
+            asset2={asset2}
+          />
         );
+      default:
+        return null;
     }
   }
 

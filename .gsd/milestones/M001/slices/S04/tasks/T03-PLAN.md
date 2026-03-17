@@ -146,3 +146,12 @@ Build the Step 6 (Z-Score & Signals) component — the most complex Academy step
 
 - `frontend/components/academy/StepZScoreSignals.tsx` — new ~500-line component with z-score computation, signal state machine, z-score chart with threshold zones and markers, 3 sliders, signal summary panel, educational panel
 - `frontend/app/(dashboard)/academy/page.tsx` — modified with 1 new import + 1 new switch case (case 5), default placeholder text removed or updated
+
+## Observability Impact
+
+- **Inspection surface**: `.js-plotly-plot` CSS selector count on step 6 = 1 (z-score chart). Signal Summary panel shows 4 numeric counts (Total Trades, Long Entries, Short Entries, Stop Losses) — verify they change when sliders move.
+- **Chart annotations**: Right-side labels show current threshold values (e.g. "Entry (+2.0)", "Stop (−3.0)") — these shift when sliders change, confirming reactivity.
+- **Signal marker verification**: Plotly traces include signal markers batched by type. Visible as colored triangles (entry), circles (exit), and X's (stop-loss) on the chart.
+- **No new API calls**: Step 6 reuses `cointegrationData.spread` from the existing fetch. All z-score computation and signal generation is client-side. Browser Network tab should show zero fetch/XHR requests after any slider interaction.
+- **Failure visibility**: If StepZScoreSignals fails to render, the switch case falls through to `default: return null` — the step area will be blank (no content rendered). If z-score computation produces all nulls, the chart renders with no data points and no signal markers.
+- **Educational panel**: 3-layer accordion (Intuition, How It Works, Your Pair) — all sections populated. Your Pair section dynamically reflects current trade count and threshold values.
