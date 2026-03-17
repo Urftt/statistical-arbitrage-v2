@@ -88,6 +88,14 @@ This is a port of the Dash `pair_deep_dive.py` (247 lines) to a React `'use clie
   - Histograms show spread and z-score distributions
 - Change pair in header, click "Analyze" again — all cards and charts update
 
+## Observability Impact
+
+- **Visible analysis lifecycle:** the page must expose invalid pair selection as an inline yellow alert, in-flight requests as loading skeletons, and API/data failures as inline red alerts instead of silent chart absence.
+- **User-inspectable output surface:** successful analysis makes all 8 stat cards and all 4 charts appear together, so a future agent can verify end-to-end success from one page without reading console output.
+- **Backend/API failure visibility:** all requests still flow through `frontend/lib/api.ts` `apiFetch()`, which logs failed fetches and non-OK responses to `console.error` with URL and status; this task should preserve that path for Deep Dive requests.
+- **Chart data sanity surface:** null leading z-score values must be filtered before plotting so histogram and line charts render without gaps/errors beyond the expected warm-up period; if filtering breaks, the z-score chart/histogram becomes visibly wrong or empty.
+- **Pair-change verification:** changing the global header pair and rerunning analysis should update the stat-card values and plotted series, making stale-state bugs directly observable in the browser.
+
 ## Inputs
 
 - `frontend/app/(dashboard)/deep-dive/page.tsx` — current placeholder (to be replaced)

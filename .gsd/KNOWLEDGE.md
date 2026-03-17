@@ -61,3 +61,7 @@ The `@types/plotly.js` `ScatterData.mode` union includes `'text+markers'` but NO
 ## API timestamps are epoch-ms, not epoch-seconds
 
 The FastAPI backend returns `timestamps: number[]` in the `CointegrationResponse` and `OHLCVResponse` as **epoch milliseconds**. Use `new Date(ts).toISOString()` directly, NOT `new Date(ts * 1000)`. The `* 1000` pattern produces dates in year 57000+. See `timestampsToISO()` helper in `StepPriceComparison.tsx` as the canonical pattern.
+
+## `postCointegration()` always returns z-score with window=60
+
+`POST /api/analysis/cointegration` hardcodes `PairAnalysis.calculate_zscore(window=60)` in `api/routers/analysis.py`, so the returned `CointegrationResponse.zscore` does **not** respect any frontend lookback control. If a page lets the user change z-score window (e.g. Deep Dive), either recompute z-score client-side from `spread` using the selected window or call the dedicated `/api/analysis/zscore` endpoint. Do not assume `postCointegration()` is enough for configurable z-score views.

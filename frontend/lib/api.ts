@@ -149,18 +149,25 @@ export async function fetchPairs(): Promise<PairsListResponse> {
 
 /**
  * Fetch OHLCV candle data for a specific pair and timeframe.
- * GET /api/pairs/{symbol}/ohlcv?timeframe={tf}
+ * GET /api/pairs/{symbol}/ohlcv?timeframe={tf}[&days_back=N]
  *
  * @param symbol - Pair symbol, e.g. "ETH/EUR"
  * @param timeframe - Candle timeframe, e.g. "1h"
+ * @param daysBack - Optional history window in days
  */
 export async function fetchOHLCV(
   symbol: string,
-  timeframe: string
+  timeframe: string,
+  daysBack?: number
 ): Promise<OHLCVResponse> {
   const dashSymbol = symbolToDash(symbol);
+  const params = new URLSearchParams({ timeframe });
+  if (daysBack !== undefined) {
+    params.set('days_back', String(daysBack));
+  }
+
   return apiFetch<OHLCVResponse>(
-    `${API_BASE_URL}/api/pairs/${dashSymbol}/ohlcv?timeframe=${timeframe}`
+    `${API_BASE_URL}/api/pairs/${dashSymbol}/ohlcv?${params.toString()}`
   );
 }
 
