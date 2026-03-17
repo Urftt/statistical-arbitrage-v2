@@ -60,7 +60,7 @@ This milestone is complete only when all are true:
 - [x] **S02: Next.js App Shell + Navigation** `risk:high` `depends:[]`
   > After this: browser shows a dark-themed app at localhost:3000 with sidebar navigation, global pair selector, and page routing — all pages show placeholder content.
 
-- [ ] **S03: Academy Step Engine + First 3 Steps** `risk:medium` `depends:[S01,S02]`
+- [x] **S03: Academy Step Engine + First 3 Steps** `risk:medium` `depends:[S01,S02]`
   > After this: Academy page has a working stepper; steps 1-3 (pair selection, price comparison, correlation vs cointegration) render with real data, interactive charts, and educational panels.
 
 - [ ] **S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)** `risk:medium` `depends:[S03]`

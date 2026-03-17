@@ -14,7 +14,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04
-- Validation: unmapped
+- Validation: S03: Steps 1-3 working with real data and stepper infrastructure. Steps 4-6 needed (S04) for full validation.
 - Notes: The 6 steps match the existing Dash implementation. Content is right, execution needs polish.
 
 ### R002 — Three-layer educational panels (Intuition → How It Works → Your Pair)
@@ -245,7 +245,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04, M002/S01, M002/S02
-- Validation: unmapped
+- Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. Visibility pattern established. Full validation requires S04 (steps 4-6) and M002 (research/backtest transparency).
 - Notes: Applies to every pillar. This is what "transparent + honest" means in practice.
 
 ### R023 — Data quality validation before backtesting (missing candles, gaps)
@@ -326,8 +326,8 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | primary-user-loop | active | M001/S03 | M001/S04 | unmapped |
-| R002 | primary-user-loop | active | M001/S03 | M001/S04 | unmapped |
+| R001 | primary-user-loop | active | M001/S03 | M001/S04 | S03: steps 1-3 proven |
+| R002 | primary-user-loop | active | M001/S03 | M001/S04 | S03: 3-layer panels on steps 1-3 |
 | R003 | primary-user-loop | active | M001/S04 | none | unmapped |
 | R004 | core-capability | active | M001/S02 | M001/S03-S06 | unmapped |
 | R005 | core-capability | active | M001/S01 | none | unmapped |
@@ -347,7 +347,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 | R019 | core-capability | active | M004/S01 | none | unmapped |
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
-| R022 | quality-attribute | active | M001/S03 | M001/S04, M002 | unmapped |
+| R022 | quality-attribute | active | M001/S03 | M001/S04, M002 | S03: visibility in steps 1-3 |
 | R023 | failure-visibility | active | M002/S02 | none | unmapped |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
