@@ -2,6 +2,10 @@
 
 Recurring patterns, gotchas, and non-obvious rules discovered during execution.
 
+## Prefer Playwright E2E over browser tools for verification
+
+The frontend has a Playwright test suite at `frontend/e2e/`. Run `cd frontend && REUSE_SERVERS=1 npm run test:e2e` (if servers are already up) or `cd frontend && npm run test:e2e` (auto-launches both FastAPI :8000 and Next.js :3000). 15 tests cover the core M001 surfaces in ~14 seconds. **Use this as the primary frontend verification gate.** Only use browser tools for genuinely new visual work that doesn't have a test yet — and then add a Playwright test for it before the slice closes. New E2E tests go in `frontend/e2e/`.
+
 ## Pytest pythonpath for `api/` package
 
 The project uses `src/` layout with `uv_build`. Only `src/` is on `sys.path` by default. The `api/` package at the project root is importable from `uv run python` (cwd added) but **not** from pytest without explicit config. Fix: add `[tool.pytest.ini_options] pythonpath = ["."]` to `pyproject.toml`. This was added in T01.
