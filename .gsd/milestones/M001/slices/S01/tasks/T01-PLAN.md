@@ -88,3 +88,10 @@ Key challenges: Polars DataFrame → JSON serialization (use `.to_dicts()` or co
 - `api/routers/pairs.py` — pairs list + OHLCV endpoints
 - `api/main.py` — FastAPI app with CORS + router registration
 - `run_api.py` — uvicorn launch script
+
+## Observability Impact
+
+- **New runtime signals:** Uvicorn access logs (method, path, status, duration) for every request. FastAPI startup log `"🚀 Statistical Arbitrage API running"` confirms boot.
+- **Inspection surfaces:** `GET /api/health` returns `{"status": "ok", "pairs_cached": N}` — quick liveness + data availability check. OpenAPI docs at `/docs` for interactive endpoint exploration.
+- **Error visibility:** All errors return structured JSON `{"detail": "..."}` with HTTP 404 (missing cache) or 422 (validation). Uncaught exceptions produce 500 with traceback in server logs.
+- **How to inspect:** `curl localhost:8000/api/health` to verify API is up and cache is accessible. Check uvicorn stderr for request logs and errors.

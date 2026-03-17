@@ -47,7 +47,7 @@
 
 ## Tasks
 
-- [ ] **T01: FastAPI app factory with health and pairs data endpoints** `est:1h`
+- [x] **T01: FastAPI app factory with health and pairs data endpoints** `est:1h`
   - Why: Establishes the API framework and proves the data path works — cache manager integration, Polars-to-JSON serialization, CORS middleware. Every subsequent task and downstream slice depends on this foundation.
   - Files: `pyproject.toml`, `api/__init__.py`, `api/main.py`, `api/schemas.py`, `api/routers/__init__.py`, `api/routers/health.py`, `api/routers/pairs.py`, `run_api.py`
   - Do: Add `fastapi`, `uvicorn[standard]`, `httpx` to pyproject.toml. Create FastAPI app with CORS (allow localhost:3000). Create Pydantic models for pair info and OHLCV responses. Implement `GET /api/health` (with pair count from cache), `GET /api/pairs` (list cached via DataCacheManager), `GET /api/pairs/{symbol}/ohlcv` (read parquet directly — NOT via get_candles() which may trigger API calls). Use dependency injection for cache manager. Convert symbol format: URL uses `ETH-EUR`, internal uses `ETH/EUR`. Handle Polars datetime serialization.
