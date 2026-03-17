@@ -109,6 +109,14 @@ Build the Step 5 (The Spread) component — the first step with a parameter slid
 - Plotly histogram trace: use `type: 'histogram'` with `x: spreadValues` — Plotly handles binning
 - Plotly shapes for mean line on histogram: use `shapes` array in layout with `type: 'line'`, `xref: 'x'`, `yref: 'paper'`
 
+## Observability Impact
+
+- **Chart render signal**: Two `.js-plotly-plot` elements render inside step 5 content (spread chart + histogram). Selector count confirms charts loaded.
+- **Slider state**: Rolling window `useState` is local — slider changes trigger `useMemo` recomputation, visible as chart title updating to `(window=N)`. Browser Network tab shows **zero** new requests on slider move.
+- **Half-life badge**: Badge text shows exact half-life value or "N/A". Badge color (teal vs orange) indicates quality.
+- **Failure visibility**: If `cointegrationData` is null, a yellow "data not available" alert renders. If the switch case doesn't match, the default placeholder shows. Missing charts = PlotlyChart Skeleton remains visible.
+- **No new API calls**: This component reads from the page-level `CointegrationResponse` — no new fetch endpoints or console.error paths introduced.
+
 ## Expected Output
 
 - `frontend/components/academy/StepSpread.tsx` — new ~400-line component with rolling computation, spread chart with σ bands, histogram, half-life badge, slider, educational panel

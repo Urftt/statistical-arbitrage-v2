@@ -53,3 +53,11 @@ When spreading a style object that contains `title` and then explicitly setting 
 ## Plotly.js TypeScript: `markers+text` mode is not in the union type
 
 The `@types/plotly.js` `ScatterData.mode` union includes `'text+markers'` but NOT `'markers+text'`. Both are valid at runtime in Plotly, but TypeScript will reject `'markers+text'`. Always use `'text+markers'` instead to avoid TS2322.
+
+## Plotly.js TypeScript: `nbinsx` not in histogram type definitions
+
+`@types/plotly.js` does not include `nbinsx`/`nbinsy` properties on histogram traces, despite Plotly runtime fully supporting them. Workaround: cast the trace object `as Data` when using `nbinsx`. The runtime behavior is correct.
+
+## API timestamps are epoch-ms, not epoch-seconds
+
+The FastAPI backend returns `timestamps: number[]` in the `CointegrationResponse` and `OHLCVResponse` as **epoch milliseconds**. Use `new Date(ts).toISOString()` directly, NOT `new Date(ts * 1000)`. The `* 1000` pattern produces dates in year 57000+. See `timestampsToISO()` helper in `StepPriceComparison.tsx` as the canonical pattern.

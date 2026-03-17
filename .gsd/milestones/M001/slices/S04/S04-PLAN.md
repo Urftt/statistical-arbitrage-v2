@@ -51,7 +51,7 @@
   - Verify: `cd frontend && npm run build` exits 0. Step 4 renders ADF chart + scatter + badge when pair selected.
   - Done when: Step 4 shows ADF number line with diamond marker at test statistic position, colored zones for significance levels, regression scatter with OLS line, hedge ratio badge, pass/fail alert, and educational panel with all 3 layers.
 
-- [ ] **T02: Build StepSpread component with rolling window slider and wire step 5 into Academy** `est:50m`
+- [x] **T02: Build StepSpread component with rolling window slider and wire step 5 into Academy** `est:50m`
   - Why: Step 5 introduces the first parameter slider and client-side rolling computation — the core pattern that R003 requires. It visualizes the spread with dynamic σ bands and proves real-time chart updates work without API calls.
   - Files: `frontend/components/academy/StepSpread.tsx` (new), `frontend/app/(dashboard)/academy/page.tsx`
   - Do: Create StepSpread with: (1) Rolling window Mantine Slider (min=10, max=200, step=5, marks at 20/60/120/200). (2) Client-side rolling mean/std computation from cointegrationData.spread array. (3) Spread chart with ±1σ/2σ/3σ fill bands, rolling mean dashed line, raw spread line. (4) Spread histogram with mean vline. (5) Half-life badge (teal if finite & < 100, orange otherwise). (6) EducationalPanel with all 3 layers. Slider state is local (useState), triggers useMemo recomputation. Handle null values in spread array. Port content from Dash learn.py lines 1127-1310. Wire step 5 into page.tsx switch (case 4).

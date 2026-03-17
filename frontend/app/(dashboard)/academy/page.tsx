@@ -7,6 +7,7 @@ import { StepPairSelector } from '@/components/academy/StepPairSelector';
 import { StepPriceComparison } from '@/components/academy/StepPriceComparison';
 import { StepCorrelationVsCointegration } from '@/components/academy/StepCorrelationVsCointegration';
 import { StepCointegrationTest } from '@/components/academy/StepCointegrationTest';
+import { StepSpread } from '@/components/academy/StepSpread';
 import { usePairContext } from '@/contexts/PairContext';
 import {
   fetchOHLCV,
@@ -152,6 +153,15 @@ export default function AcademyPage() {
             cointegrationData={cointData}
             ohlcv1={ohlcv1}
             ohlcv2={ohlcv2}
+            loading={cointLoading}
+            asset1={asset1}
+            asset2={asset2}
+          />
+        );
+      case 4:
+        return (
+          <StepSpread
+            cointegrationData={cointData}
             loading={cointLoading}
             asset1={asset1}
             asset2={asset2}
