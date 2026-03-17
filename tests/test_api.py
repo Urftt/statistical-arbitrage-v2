@@ -3,10 +3,15 @@
 Uses httpx TestClient with the FastAPI app — no live server needed.
 """
 
+import json
+import math
+
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
+from api.schemas import numpy_to_python
 
 client = TestClient(app)
 
@@ -125,3 +130,329 @@ class TestErrors:
         assert resp.status_code == 404
         data = resp.json()
         assert isinstance(data["detail"], str)
+
+
+# ---------------------------------------------------------------------------
+# numpy_to_python converter
+# ---------------------------------------------------------------------------
+
+
+class TestNumpyToPython:
+    def test_float64(self):
+        assert numpy_to_python(np.float64(3.14)) == 3.14
+        assert isinstance(numpy_to_python(np.float64(3.14)), float)
+
+    def test_int64(self):
+        assert numpy_to_python(np.int64(42)) == 42
+        assert isinstance(numpy_to_python(np.int64(42)), int)
+
+    def test_bool_(self):
+        assert numpy_to_python(np.bool_(True)) is True
+        assert isinstance(numpy_to_python(np.bool_(False)), bool)
+
+    def test_inf_becomes_none(self):
+        assert numpy_to_python(np.float64(np.inf)) is None
+        assert numpy_to_python(float("inf")) is None
+
+    def test_nan_becomes_none(self):
+        assert numpy_to_python(np.float64(np.nan)) is None
+        assert numpy_to_python(float("nan")) is None
+
+    def test_ndarray(self):
+        arr = np.array([1.0, 2.0, 3.0])
+        result = numpy_to_python(arr)
+        assert result == [1.0, 2.0, 3.0]
+        assert isinstance(result[0], float)
+
+    def test_nested_dict(self):
+        data = {
+            "score": np.float64(-3.5),
+            "critical_values": {
+                "1%": np.float64(-3.9),
+                "5%": np.float64(-3.4),
+            },
+            "is_ok": np.bool_(True),
+        }
+        result = numpy_to_python(data)
+        assert result["score"] == -3.5
+        assert result["critical_values"]["1%"] == -3.9
+        assert result["is_ok"] is True
+        # Verify JSON-serializable
+        json.dumps(result)
+
+    def test_ndarray_with_nan(self):
+        arr = np.array([1.0, np.nan, 3.0])
+        result = numpy_to_python(arr)
+        assert result == [1.0, None, 3.0]
+        json.dumps(result)
+
+    def test_python_types_passthrough(self):
+        assert numpy_to_python("hello") == "hello"
+        assert numpy_to_python(42) == 42
+        assert numpy_to_python(None) is None
+
+
+# ---------------------------------------------------------------------------
+# Cointegration endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestCointegration:
+    def test_cointegration_returns_full_results(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+
+        # All required fields present
+        for field in (
+            "cointegration_score", "p_value", "critical_values",
+            "is_cointegrated", "hedge_ratio", "intercept",
+            "spread", "zscore", "half_life", "correlation",
+            "spread_stationarity", "spread_properties",
+            "interpretation", "timestamps",
+        ):
+            assert field in data, f"Missing field: {field}"
+
+    def test_cointegration_types_are_native(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        data = resp.json()
+
+        # Scalars are native types
+        assert isinstance(data["cointegration_score"], float)
+        assert isinstance(data["p_value"], float)
+        assert isinstance(data["is_cointegrated"], bool)
+        assert isinstance(data["hedge_ratio"], float)
+        assert isinstance(data["correlation"], float)
+
+        # Arrays are lists of floats (or None for NaN)
+        assert isinstance(data["spread"], list)
+        assert isinstance(data["timestamps"], list)
+        assert len(data["spread"]) == len(data["timestamps"])
+        assert len(data["zscore"]) == len(data["timestamps"])
+
+    def test_cointegration_critical_values_structure(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        cv = resp.json()["critical_values"]
+        assert "one_pct" in cv
+        assert "five_pct" in cv
+        assert "ten_pct" in cv
+        assert all(isinstance(cv[k], float) for k in cv)
+
+    def test_cointegration_spread_stationarity_structure(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        ss = resp.json()["spread_stationarity"]
+        assert "adf_statistic" in ss
+        assert "p_value" in ss
+        assert "is_stationary" in ss
+        assert isinstance(ss["is_stationary"], bool)
+
+    def test_cointegration_spread_properties_structure(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        sp = resp.json()["spread_properties"]
+        for field in ("mean", "std", "min", "max", "median", "skewness", "kurtosis", "autocorr_lag1"):
+            assert field in sp, f"Missing spread_properties field: {field}"
+            assert isinstance(sp[field], (float, int, type(None)))
+
+    def test_cointegration_json_serializable(self):
+        """Response must be fully JSON-serializable (no numpy types)."""
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        # json.loads succeeds without TypeError
+        json.loads(resp.text)
+
+    def test_cointegration_half_life_type(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        data = resp.json()
+        # half_life is either a float or null
+        assert data["half_life"] is None or isinstance(data["half_life"], float)
+        # If null, half_life_note explains why
+        if data["half_life"] is None:
+            assert data["half_life_note"] is not None
+            assert "infinite" in data["half_life_note"].lower() or "no mean reversion" in data["half_life_note"].lower()
+
+    def test_cointegration_days_back(self):
+        resp_short = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h", "days_back": 30},
+        )
+        resp_long = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h", "days_back": 90},
+        )
+        assert resp_short.status_code == 200
+        assert resp_long.status_code == 200
+        assert len(resp_short.json()["timestamps"]) < len(resp_long.json()["timestamps"])
+
+
+# ---------------------------------------------------------------------------
+# Spread endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestSpread:
+    def test_spread_ols(self):
+        resp = client.post(
+            "/api/analysis/spread",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h", "method": "ols"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["method"] == "ols"
+        assert isinstance(data["spread"], list)
+        assert len(data["spread"]) == len(data["timestamps"])
+
+    def test_spread_ratio(self):
+        resp = client.post(
+            "/api/analysis/spread",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h", "method": "ratio"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "ratio"
+
+    def test_spread_default_method(self):
+        resp = client.post(
+            "/api/analysis/spread",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "ols"
+
+
+# ---------------------------------------------------------------------------
+# Z-score endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestZScore:
+    def test_zscore_returns_array(self):
+        resp = client.post(
+            "/api/analysis/zscore",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h", "lookback_window": 60},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["lookback_window"] == 60
+        assert isinstance(data["zscore"], list)
+        assert len(data["zscore"]) == len(data["timestamps"])
+
+    def test_zscore_custom_window(self):
+        resp = client.post(
+            "/api/analysis/zscore",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "lookback_window": 30},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["lookback_window"] == 30
+
+    def test_zscore_json_serializable(self):
+        resp = client.post(
+            "/api/analysis/zscore",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR"},
+        )
+        json.loads(resp.text)
+
+
+# ---------------------------------------------------------------------------
+# Stationarity endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestStationarity:
+    def test_stationarity_spread(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "adf_statistic" in data
+        assert "p_value" in data
+        assert "is_stationary" in data
+        assert isinstance(data["is_stationary"], bool)
+
+    def test_stationarity_asset1(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "series_name": "asset1"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["name"] == "ETH/EUR"
+
+    def test_stationarity_asset2(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "series_name": "asset2"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["name"] == "ETC/EUR"
+
+    def test_stationarity_critical_values(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR"},
+        )
+        cv = resp.json()["critical_values"]
+        assert all(k in cv for k in ("one_pct", "five_pct", "ten_pct"))
+
+
+# ---------------------------------------------------------------------------
+# Analysis error cases
+# ---------------------------------------------------------------------------
+
+
+class TestAnalysisErrors:
+    def test_error_missing_pair_404(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "FAKE/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 404
+        assert "Cache not found" in resp.json()["detail"]
+
+    def test_error_missing_pair_spread_404(self):
+        resp = client.post(
+            "/api/analysis/spread",
+            json={"asset1": "FAKE/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 404
+
+    def test_error_missing_pair_zscore_404(self):
+        resp = client.post(
+            "/api/analysis/zscore",
+            json={"asset1": "FAKE/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 404
+
+    def test_error_missing_pair_stationarity_404(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "FAKE/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 404
+
+    def test_error_response_has_detail(self):
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "NONEXISTENT/EUR", "asset2": "ETC/EUR"},
+        )
+        assert resp.status_code == 404
+        assert "detail" in resp.json()

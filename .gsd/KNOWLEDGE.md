@@ -17,3 +17,11 @@ FastAPI `on_event("startup")` is deprecated in recent versions. Use `@asyncconte
 ## OHLCV parquet — read directly, never via get_candles()
 
 `get_candles()` auto-fetches from Bitvavo API if cache is stale. For the API layer, always use `pl.read_parquet()` directly on cache files to avoid accidental API calls.
+
+## Rolling z-score produces NaN for warmup period
+
+`PairAnalysis.calculate_zscore(window=N)` uses Polars `rolling_mean`/`rolling_std` which produce NaN for the first `N-1` positions. After `numpy_to_python()` converts NaN→None, Pydantic `list[float]` rejects None values. Use `list[float | None]` for z-score arrays. The frontend should skip null values when charting.
+
+## numpy_to_python must handle both numpy AND native Python floats
+
+The converter checks `isinstance(obj, (np.floating, float))` to catch both `np.float64` and native Python `float('inf')`/`float('nan')`. `calculate_half_life()` returns `np.inf` (np.floating subclass) but after conversion via `.tolist()`, numpy scalars may become native Python floats that still need inf/nan checking.

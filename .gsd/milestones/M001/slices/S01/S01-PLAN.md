@@ -54,7 +54,7 @@
   - Verify: `uv sync --all-extras && uv run python run_api.py &` starts on :8000; `curl localhost:8000/api/health` returns status OK; `curl localhost:8000/api/pairs` returns pair list; `curl 'localhost:8000/api/pairs/ETH-EUR/ohlcv?timeframe=1h'` returns OHLCV JSON
   - Done when: health, pairs list, and OHLCV endpoints return real data from parquet cache; OpenAPI docs render at `/docs`
 
-- [ ] **T02: Analysis endpoints with numpy serialization** `est:1h`
+- [x] **T02: Analysis endpoints with numpy serialization** `est:1h`
   - Why: The analysis endpoints are the primary value — they expose PairAnalysis (cointegration, spread, z-score, stationarity) to the frontend. Numpy serialization is the main technical risk: `np.float64`, `np.bool_`, `np.ndarray`, and `np.inf` all need conversion to JSON-safe Python types.
   - Files: `api/routers/analysis.py`, `api/schemas.py` (extend with analysis models), `api/main.py` (register analysis router)
   - Do: Create a `numpy_to_python(obj)` recursive helper that converts numpy types to native Python (float64→float, bool_→bool, ndarray→list, inf→None). Build Pydantic request/response models for cointegration, spread, zscore, stationarity. Implement 4 POST endpoints that: read parquet for both assets, extract close price as pl.Series, construct PairAnalysis, call appropriate methods, convert results with numpy_to_python, return via Pydantic models. Handle edge cases: np.inf half-life → None with explanation, missing cache → 404, analysis failure → 500 with detail.
