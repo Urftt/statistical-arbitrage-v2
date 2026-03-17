@@ -70,6 +70,12 @@ Key things to verify beyond "it returns 200": numpy types don't leak into JSON r
 - `api/routers/analysis.py` from T02 — analysis endpoints to test
 - `data/cache/*.parquet` — real cache data (tests read through the API which reads these)
 
+## Observability Impact
+
+- **New signals:** `pytest tests/test_api.py -v` becomes the canonical contract verification command — if any test fails, the API boundary is broken for downstream slices (S03-S05).
+- **How to inspect:** Run `pytest tests/test_api.py -v --tb=short` to see endpoint contract health. Use `-k "error"` to isolate error-path tests. Use `-k "numpy or serializ"` to isolate type safety tests.
+- **Failure visibility:** Test names encode endpoint + behavior (e.g. `test_cointegration_types_are_native`, `test_error_missing_pair_404`). Failures point directly to which contract is broken. The recursive numpy check (`test_no_numpy_types_in_response`) catches any regression in numpy→Python conversion across the entire response tree.
+
 ## Expected Output
 
 - `tests/test_api.py` — comprehensive test file with ≥12 test cases covering all endpoints, error paths, and numpy serialization

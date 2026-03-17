@@ -456,3 +456,71 @@ class TestAnalysisErrors:
         )
         assert resp.status_code == 404
         assert "detail" in resp.json()
+
+    def test_error_missing_body_422(self):
+        """POST analysis endpoints without a body returns 422 validation error."""
+        resp = client.post("/api/analysis/cointegration")
+        assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Deep serialization safety — recursive numpy type walk
+# ---------------------------------------------------------------------------
+
+
+class TestSerializationSafety:
+    """Recursively verify that no numpy types survive in API responses."""
+
+    NUMPY_TYPES = (
+        np.float64, np.float32, np.float16,
+        np.int64, np.int32, np.int16, np.int8,
+        np.uint64, np.uint32, np.uint16, np.uint8,
+        np.bool_, np.str_, np.ndarray,
+    )
+
+    @classmethod
+    def _assert_no_numpy(cls, obj, path: str = "root"):
+        """Recursively walk a parsed JSON value and assert no numpy types."""
+        assert not isinstance(obj, cls.NUMPY_TYPES), (
+            f"Numpy type {type(obj).__name__} found at {path}: {obj!r}"
+        )
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                cls._assert_no_numpy(v, f"{path}.{k}")
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj):
+                cls._assert_no_numpy(v, f"{path}[{i}]")
+
+    def test_no_numpy_types_in_cointegration_response(self):
+        """Walk the entire cointegration response tree and verify no numpy types."""
+        resp = client.post(
+            "/api/analysis/cointegration",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        self._assert_no_numpy(data)
+
+    def test_no_numpy_types_in_spread_response(self):
+        resp = client.post(
+            "/api/analysis/spread",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        self._assert_no_numpy(resp.json())
+
+    def test_no_numpy_types_in_zscore_response(self):
+        resp = client.post(
+            "/api/analysis/zscore",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        self._assert_no_numpy(resp.json())
+
+    def test_no_numpy_types_in_stationarity_response(self):
+        resp = client.post(
+            "/api/analysis/stationarity",
+            json={"asset1": "ETH/EUR", "asset2": "ETC/EUR", "timeframe": "1h"},
+        )
+        assert resp.status_code == 200
+        self._assert_no_numpy(resp.json())

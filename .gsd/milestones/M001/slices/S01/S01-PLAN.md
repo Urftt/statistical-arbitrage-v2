@@ -61,7 +61,7 @@
   - Verify: `curl -X POST localhost:8000/api/analysis/cointegration -H 'Content-Type: application/json' -d '{"asset1":"ETH/EUR","asset2":"ETC/EUR","timeframe":"1h"}'` returns full results; all numeric fields are native Python types (no numpy repr strings)
   - Done when: all 4 analysis endpoints return valid JSON with real analysis results; `np.inf` half-life serializes as `null`; invalid pairs return 404
 
-- [ ] **T03: Comprehensive API endpoint tests** `est:45m`
+- [x] **T03: Comprehensive API endpoint tests** `est:45m`
   - Why: Tests prove the API contracts that S03/S04/S05 depend on. Without tests, a future change to cointegration.py or cache_manager.py could silently break the API boundary.
   - Files: `tests/test_api.py`
   - Do: Use httpx `TestClient` with the FastAPI app. Test every endpoint: health returns status + pair count; pairs list is non-empty with correct fields; OHLCV returns array data with correct columns; cointegration returns all expected fields (p_value, hedge_ratio, is_cointegrated, spread, zscore, half_life, correlation); spread/zscore return arrays; stationarity returns ADF results. Test error paths: invalid symbol → 404, invalid timeframe → 404 or 422, missing request body → 422. Verify no numpy types leak into responses (spot-check that values are int/float/bool/None, not np.*).
