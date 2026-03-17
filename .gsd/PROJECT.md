@@ -20,16 +20,17 @@ The V1 Dash app is being migrated to V2 with a new tech stack. What exists and w
 - **Data pipeline**: CCXT → Bitvavo API → parquet cache with delta updates. ~20 EUR pairs cached at 1h and 4h timeframes (44 total datasets).
 - **Analysis engine**: `PairAnalysis` class (Engle-Granger cointegration, ADF test, spread, z-score, half-life, correlation). 8 empirical research functions in `analysis/research.py` (938 lines, zero Dash imports).
 - **FastAPI REST API** (S01 ✅): 7 endpoints wrapping PairAnalysis and DataCacheManager — health, pairs list, OHLCV, cointegration, spread, zscore, stationarity. 51 tests, Pydantic models, OpenAPI docs at /docs. CORS enabled for localhost:3000.
+- **Next.js Frontend Shell** (S02 ✅): Dark-themed AppShell with Mantine v8, sidebar navigation (4 pages), global pair selector populated from API, SSR-safe PlotlyChart wrapper with ported mantine_dark template. `npm run build` passes clean.
 - **Visualization**: Plotly figure builders for spread plots and educational concepts.
 - **Config**: Pydantic settings with Bitvavo creds, data paths, strategy params.
 - **Tests**: 99 tests (48 research + 51 API).
 
-The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. The backend API layer is complete (S01). Next: frontend shell (S02) and Academy pages (S03-S04).
+The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. Backend API (S01) and frontend shell (S02) are complete. Next: Academy step engine with first 3 steps (S03), then remaining Academy steps (S04), Scanner + Deep Dive (S05), and final integration (S06).
 
 ## Architecture / Key Patterns
 
 - **Backend**: FastAPI (Python) wrapping existing analysis code. Polars for all dataframes. statsmodels/scipy for statistical tests. CCXT for Bitvavo exchange data.
-- **Frontend**: Next.js (React) with dark theme and Plotly charts via react-plotly.js.
+- **Frontend**: Next.js 16 (React, App Router) with Mantine v8 dark theme. Plotly charts via react-plotly.js (SSR-safe via next/dynamic). Global pair state via PairContext.
 - **Data**: Parquet storage in `data/cache/`. All data uses Polars DataFrames.
 - **Config**: `config/settings.py` uses pydantic-settings with `config/.env` for secrets.
 - **Analysis separation**: Analysis functions are pure Python (zero UI imports). UI is a thin wrapper.

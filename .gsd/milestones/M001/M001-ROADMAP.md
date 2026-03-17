@@ -57,7 +57,7 @@ This milestone is complete only when all are true:
 - [x] **S01: FastAPI Backend + Data API** `risk:high` `depends:[]`
   > After this: `curl localhost:8000/api/pairs` returns the cached pair list; `/api/analysis/cointegration` returns real cointegration results for any pair.
 
-- [ ] **S02: Next.js App Shell + Navigation** `risk:high` `depends:[]`
+- [x] **S02: Next.js App Shell + Navigation** `risk:high` `depends:[]`
   > After this: browser shows a dark-themed app at localhost:3000 with sidebar navigation, global pair selector, and page routing — all pages show placeholder content.
 
 - [ ] **S03: Academy Step Engine + First 3 Steps** `risk:medium` `depends:[S01,S02]`
