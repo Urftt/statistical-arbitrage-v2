@@ -54,7 +54,7 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: FastAPI Backend + Data API** `risk:high` `depends:[]`
+- [x] **S01: FastAPI Backend + Data API** `risk:high` `depends:[]`
   > After this: `curl localhost:8000/api/pairs` returns the cached pair list; `/api/analysis/cointegration` returns real cointegration results for any pair.
 
 - [ ] **S02: Next.js App Shell + Navigation** `risk:high` `depends:[]`

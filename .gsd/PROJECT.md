@@ -17,13 +17,14 @@ The platform must never feel like a black box. Every formula, assumption, and de
 
 The V1 Dash app is being migrated to V2 with a new tech stack. What exists and works:
 
-- **Data pipeline**: CCXT → Bitvavo API → parquet cache with delta updates. ~20 EUR pairs cached at 1h and 4h timeframes.
+- **Data pipeline**: CCXT → Bitvavo API → parquet cache with delta updates. ~20 EUR pairs cached at 1h and 4h timeframes (44 total datasets).
 - **Analysis engine**: `PairAnalysis` class (Engle-Granger cointegration, ADF test, spread, z-score, half-life, correlation). 8 empirical research functions in `analysis/research.py` (938 lines, zero Dash imports).
+- **FastAPI REST API** (S01 ✅): 7 endpoints wrapping PairAnalysis and DataCacheManager — health, pairs list, OHLCV, cointegration, spread, zscore, stationarity. 51 tests, Pydantic models, OpenAPI docs at /docs. CORS enabled for localhost:3000.
 - **Visualization**: Plotly figure builders for spread plots and educational concepts.
 - **Config**: Pydantic settings with Bitvavo creds, data paths, strategy params.
-- **Tests**: 48 unit tests for research analysis functions and takeaway generators.
+- **Tests**: 99 tests (48 research + 51 API).
 
-The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity.
+The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. The backend API layer is complete (S01). Next: frontend shell (S02) and Academy pages (S03-S04).
 
 ## Architecture / Key Patterns
 
