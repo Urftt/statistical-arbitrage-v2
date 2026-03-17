@@ -94,6 +94,13 @@ Build the Price Comparison step — the first Academy step that fetches real API
 - **Key knowledge:** Z-score/spread arrays in cointegration response contain null values (D010) — not relevant for step 2 (only uses OHLCV close prices and scalar correlation), but important context
 - **Key knowledge:** PlotlyChart deep-merges xaxis/yaxis from PLOTLY_DARK_TEMPLATE but yaxis2 must be passed explicitly in layout (no template default for secondary axis)
 
+## Observability Impact
+
+- **New runtime signals:** OHLCV fetch failures surface via `console.error` from `apiFetch` with URL + status code. Two additional GET requests per pair selection visible in Network tab (`/api/pairs/{symbol}/ohlcv`).
+- **Inspection surfaces:** `.js-plotly-plot` CSS selector confirms chart rendered in DOM. SegmentedControl state visible in Mantine data attributes. Correlation badge text contains exact `r = X.XXX` value for verification.
+- **Failure visibility:** Missing OHLCV data renders Skeleton indefinitely (loading=true stuck). API errors logged to console. No-pair state renders explicit Alert banner. Chart with 0 data points renders empty Plotly frame (no crash).
+- **Future agent inspection:** Check Network tab for 3 parallel requests (1 POST cointegration + 2 GET OHLCV) on pair selection. Verify chart toggle by checking which PlotlyChart div has `display:none` vs visible.
+
 ## Expected Output
 
 - `frontend/components/academy/StepPriceComparison.tsx` — new file with normalized/raw price charts, correlation badge, chart toggle, educational panel

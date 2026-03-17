@@ -66,7 +66,7 @@
   - Verify: `npm run build` exits 0; navigate to /academy → stepper visible with 6 steps → step 1 shows pair cards and educational content → clicking a pair card updates the header selects
   - Done when: Academy page renders with working stepper navigation; step 1 displays all content from learn.py step 1; clicking pair cards sets global PairContext
 
-- [ ] **T03: Build Step 2 (StepPriceComparison) — first data-driven chart** `est:35m`
+- [x] **T03: Build Step 2 (StepPriceComparison) — first data-driven chart** `est:35m`
   - Why: Step 2 is the first step that fetches real API data and renders Plotly charts. It retires the "can we render real cointegration charts from API data?" risk that the roadmap identified. This is the critical data→chart pipeline proof.
   - Files: `frontend/components/academy/StepPriceComparison.tsx`, `frontend/app/(dashboard)/academy/page.tsx`
   - Do: (1) Build `StepPriceComparison` that: shows "select a pair" Alert when asset1/asset2 are empty; fetches OHLCV for both assets + calls postCointegration on mount/pair change; shows Mantine Loader/Skeleton during fetch; builds normalized price chart (both prices rebased to 100) and raw dual-axis price chart from OHLCV close prices; SegmentedControl toggles between chart views; displays correlation badge with strength label and color (green ≥0.7, yellow ≥0.3, red <0.3); shows correlation explanation text; renders EducationalPanel with step-2 content from learn.py. (2) Wire into academy/page.tsx step dispatch for activeStep===1. Pass cached cointegration data from page-level cache to avoid redundant fetches.

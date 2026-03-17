@@ -4,10 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Container, Stack, Text, Title } from '@mantine/core';
 import { AcademyStepper } from '@/components/academy/AcademyStepper';
 import { StepPairSelector } from '@/components/academy/StepPairSelector';
+import { StepPriceComparison } from '@/components/academy/StepPriceComparison';
 import { usePairContext } from '@/contexts/PairContext';
 import {
+  fetchOHLCV,
   postCointegration,
   type CointegrationResponse,
+  type OHLCVResponse,
 } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -17,6 +20,12 @@ import {
 interface CointCache {
   key: string;
   data: CointegrationResponse;
+}
+
+interface OhlcvCache {
+  key: string;
+  data1: OHLCVResponse;
+  data2: OHLCVResponse;
 }
 
 // ---------------------------------------------------------------------------
@@ -35,53 +44,74 @@ export default function AcademyPage() {
   const [cointLoading, setCointLoading] = useState(false);
   const [cointError, setCointError] = useState<string | null>(null);
 
-  // Fetch cointegration data when pair/timeframe changes
+  // OHLCV data — fetched in parallel with cointegration
+  const ohlcvCache = useRef<OhlcvCache | null>(null);
+  const [ohlcv1, setOhlcv1] = useState<OHLCVResponse | null>(null);
+  const [ohlcv2, setOhlcv2] = useState<OHLCVResponse | null>(null);
+
+  // Fetch cointegration + OHLCV data when pair/timeframe changes
   useEffect(() => {
     if (!asset1 || !asset2) {
       setCointData(null);
       setCointError(null);
+      setOhlcv1(null);
+      setOhlcv2(null);
       return;
     }
 
     const cacheKey = `${asset1}-${asset2}-${timeframe}`;
 
-    // Use cached result if key matches
-    if (cointCache.current?.key === cacheKey) {
+    // Use cached results if key matches
+    if (
+      cointCache.current?.key === cacheKey &&
+      ohlcvCache.current?.key === cacheKey
+    ) {
       setCointData(cointCache.current.data);
+      setOhlcv1(ohlcvCache.current.data1);
+      setOhlcv2(ohlcvCache.current.data2);
       setCointError(null);
       return;
     }
 
     let cancelled = false;
 
-    async function fetchCointegration() {
+    async function fetchAll() {
       setCointLoading(true);
       setCointError(null);
 
       try {
-        const result = await postCointegration({
-          asset1: `${asset1}/EUR`,
-          asset2: `${asset2}/EUR`,
-          timeframe,
-        });
+        const [cointResult, ohlcvResult1, ohlcvResult2] = await Promise.all([
+          postCointegration({
+            asset1: `${asset1}/EUR`,
+            asset2: `${asset2}/EUR`,
+            timeframe,
+          }),
+          fetchOHLCV(`${asset1}/EUR`, timeframe),
+          fetchOHLCV(`${asset2}/EUR`, timeframe),
+        ]);
 
         if (cancelled) return;
 
-        cointCache.current = { key: cacheKey, data: result };
-        setCointData(result);
+        cointCache.current = { key: cacheKey, data: cointResult };
+        ohlcvCache.current = { key: cacheKey, data1: ohlcvResult1, data2: ohlcvResult2 };
+        setCointData(cointResult);
+        setOhlcv1(ohlcvResult1);
+        setOhlcv2(ohlcvResult2);
       } catch (err) {
         if (cancelled) return;
         const message =
-          err instanceof Error ? err.message : 'Cointegration analysis failed';
-        console.error(`Academy cointegration fetch failed: ${message}`);
+          err instanceof Error ? err.message : 'Academy data fetch failed';
+        console.error(`Academy fetch failed: ${message}`);
         setCointError(message);
         setCointData(null);
+        setOhlcv1(null);
+        setOhlcv2(null);
       } finally {
         if (!cancelled) setCointLoading(false);
       }
     }
 
-    fetchCointegration();
+    fetchAll();
 
     return () => {
       cancelled = true;
@@ -96,9 +126,14 @@ export default function AcademyPage() {
         return <StepPairSelector />;
       case 1:
         return (
-          <Text c="dimmed" ta="center" py="xl">
-            Step 2: Price Comparison — coming in T03
-          </Text>
+          <StepPriceComparison
+            cointegrationData={cointData}
+            ohlcv1={ohlcv1}
+            ohlcv2={ohlcv2}
+            loading={cointLoading}
+            asset1={asset1}
+            asset2={asset2}
+          />
         );
       case 2:
         return (

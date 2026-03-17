@@ -37,3 +37,7 @@ The converter checks `isinstance(obj, (np.floating, float))` to catch both `np.f
 ## plotly.js SSR: `'use client'` is NOT enough
 
 plotly.js accesses `window`/`document` at import time. In Next.js, `'use client'` components are still server-rendered for initial HTML. You MUST use `next/dynamic` with `{ ssr: false }` in addition to the `'use client'` directive. Build (`npm run build`) is the definitive test — it does full SSR and will crash with "window is not defined" if the dynamic import is missing.
+
+## Plotly.js TypeScript: Layout.title and LayoutAxis.title must be objects
+
+In `@types/plotly.js`, `Layout.title` is `Partial<{text: string; font: ...}>`, not `string`. Similarly, `LayoutAxis.title` expects `Partial<DataTitle>` (object with `text` field), not a bare string. And `LayoutAxis` has no `titlefont` property — use `title: { text, font }` instead. This differs from the Python Plotly API where string assignment is fine.
