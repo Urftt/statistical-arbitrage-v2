@@ -55,3 +55,23 @@ data/cache
 .gsd/forensics/
 .gsd/parallel/
 .gsd/activity/
+
+# ── GSD baseline (auto-generated) ──
+.gsd/DISCUSSION-MANIFEST.json
+.gsd/milestones/**/*-CONTINUE.md
+.gsd/milestones/**/continue.md
+Thumbs.db
+*~
+*.code-workspace
+.env.*
+!.env.example
+node_modules/
+.next/
+*.pyc
+venv/
+target/
+vendor/
+*.log
+coverage/
+.cache/
+tmp/
