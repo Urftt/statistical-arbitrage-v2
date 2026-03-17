@@ -23,12 +23,13 @@ The V1 Dash app is being migrated to V2 with a new tech stack. What exists and w
 - **Next.js Frontend Shell** (S02 ✅): Dark-themed AppShell with Mantine v8, sidebar navigation (4 pages), global pair selector populated from API, SSR-safe PlotlyChart wrapper with ported mantine_dark template. `npm run build` passes clean.
 - **Academy Steps 1-3** (S03 ✅): 6-step stepper with free navigation, step dispatch engine, data caching. Step 1: curated pair cards setting PairContext. Step 2: normalized/raw Plotly price charts with correlation badge. Step 3: synthetic concept subplot chart with real pair comparison badges. 3-layer EducationalPanel on every step. Full frontend→API→Plotly pipeline proven.
 - **Academy Steps 4-6** (S04 ✅): Cointegration test visualization (ADF number line, regression scatter, pass/fail verdict), spread chart with rolling window slider and ±1σ/2σ/3σ bands, z-score chart with 3 parameter sliders and signal state machine. All slider interactions are client-side with zero API calls. Full 6-step Academy flow complete.
+- **Scanner + Deep Dive** (S05 ✅): Scanner page now runs batch cointegration scans with progress feedback, sorted/highlighted result rows, a p-value histogram, and graceful ⚠️ failure rows. Deep Dive now fetches real single-pair analysis, renders 8 stat cards plus 4 dark-themed Plotly charts, and recomputes configurable z-scores client-side from spread data.
 - **Visualization**: Plotly figure builders for spread plots and educational concepts.
 - **Config**: Pydantic settings with Bitvavo creds, data paths, strategy params.
-- **Tests**: 99 tests (48 research + 51 API).
+- **Tests**: 99 tests (48 research + 51 API) plus live runtime verification for Academy, Scanner, and Deep Dive pages.
 - **Academy (steps 1-6)**: ~2900 lines across 10 files — AcademyStepper, EducationalPanel, StepPairSelector, StepPriceComparison, StepCorrelationVsCointegration, StepCointegrationTest, StepSpread, StepZScoreSignals, Academy page, extended API types.
 
-The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. Backend API (S01) and frontend shell (S02) are complete. Academy (S03+S04) is complete — all 6 steps work with real data, interactive charts, parameter sliders, and 3-layer educational panels. Next: Scanner + Deep Dive (S05), and final integration (S06).
+The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. Backend API (S01), frontend shell (S02), Academy (S03+S04), and Scanner + Deep Dive (S05) are complete. Next: S06 glossary, polish, and final milestone integration verification.
 
 ## Architecture / Key Patterns
 

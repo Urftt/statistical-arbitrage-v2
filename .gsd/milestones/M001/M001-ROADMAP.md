@@ -66,7 +66,7 @@ This milestone is complete only when all are true:
 - [x] **S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)** `risk:medium` `depends:[S03]`
   > After this: all 6 Academy steps work end-to-end — steps 4-6 include cointegration test results, spread visualization, and z-score with live parameter sliders.
 
-- [ ] **S05: Pair Scanner + Deep Dive Pages** `risk:low` `depends:[S01,S02]`
+- [x] **S05: Pair Scanner + Deep Dive Pages** `risk:low` `depends:[S01,S02]`
   > After this: Scanner page runs batch cointegration across selected pairs and displays results; Deep Dive page shows full single-pair analysis with all metrics.
 
 - [ ] **S06: Glossary + Polish + Integration Test** `risk:low` `depends:[S03,S04,S05]`

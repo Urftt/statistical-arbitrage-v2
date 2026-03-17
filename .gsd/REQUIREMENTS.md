@@ -2,44 +2,9 @@
 
 This file is the explicit capability and coverage contract for the project.
 
-Use it to track what is actively in scope, what has been validated by completed work, what is intentionally deferred, and what is explicitly out of scope.
-
 ## Active
 
-### R001 — Academy teaches stat arb with 6 structured steps using real pair data
-- Class: primary-user-loop
-- Status: validated
-- Description: The Academy walks the user through statistical arbitrage in 6 steps: pair selection → price comparison → correlation vs cointegration → cointegration test → spread → z-score & signals. Each step uses the user's actual pair data, not synthetic examples.
-- Why it matters: This is how the user learns the domain — the prerequisite for everything else. Real data makes concepts concrete and memorable.
-- Source: user
-- Primary owning slice: M001/S03
-- Supporting slices: M001/S04
-- Validation: S03: Steps 1-3 working with real data and stepper infrastructure. S04: Steps 4-6 complete with real data, interactive charts, and educational panels. Full 6-step flow verified end-to-end with BTC/ETH pair.
-- Notes: The 6 steps match the existing Dash implementation. Content is right, execution needs polish.
-
-### R002 — Three-layer educational panels (Intuition → How It Works → Your Pair)
-- Class: primary-user-loop
-- Status: validated
-- Description: Each Academy step provides content at three depths: 💡 Intuition (analogy/everyday explanation), 🔧 How It Works (formula, mechanics, the actual math), 📊 Your Pair (what the numbers mean for the selected pair).
-- Why it matters: Different learning depths for different moments. The user should never feel like the math is hidden — but shouldn't be forced to see it all at once either.
-- Source: user
-- Primary owning slice: M001/S03
-- Supporting slices: M001/S04
-- Validation: All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps.
-- Notes: Accordion-based panels in the existing Dash app. Rebuild with React components.
-
-### R003 — Interactive charts with live parameter sliders in Academy
-- Class: primary-user-loop
-- Status: validated
-- Description: Academy steps 5-6 (spread and z-score) have parameter sliders that update charts in real-time — lookback window, entry/exit thresholds, etc.
-- Why it matters: Interactive parameter exploration is how the user builds intuition for what parameter values actually mean.
-- Source: user
-- Primary owning slice: M001/S04
-- Supporting slices: none
-- Validation: Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab.
-- Notes: Existing Dash implementation has this but with callback jank. React state management should make this smoother.
-
-### R004 — React frontend with full UX control (replaces Dash)
+### R004 — The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
 - Class: core-capability
 - Status: active
 - Description: The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
@@ -47,10 +12,10 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Source: user
 - Primary owning slice: M001/S02
 - Supporting slices: M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: unmapped
-- Notes: Migration motivated by callback jank, not aesthetics.
+- Validation: S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive pages all run in React against the FastAPI backend. Full milestone validation still depends on S06 integration and final replacement proof across the remaining navigation surfaces.
+- Notes: Advanced significantly by S05, but left active until S06 confirms the complete frontend replacement experience.
 
-### R005 — FastAPI backend exposing analysis functions as API endpoints
+### R005 — FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
 - Class: core-capability
 - Status: active
 - Description: FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
@@ -61,7 +26,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: analysis/research.py already has zero Dash imports. Migration path is natural.
 
-### R006 — Global pair selector and timeframe picker
+### R006 — A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
 - Class: primary-user-loop
 - Status: active
 - Description: A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
@@ -69,10 +34,10 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Source: user
 - Primary owning slice: M001/S02
 - Supporting slices: M001/S03, M001/S05
-- Validation: unmapped
-- Notes: Exists in current Dash layout. Needs rebuild in React with proper state propagation.
+- Validation: S02 established the persistent header selector. S03 proved Academy consumes PairContext selections, and S05 proved Deep Dive reads asset1/asset2/timeframe from the header while Scanner reuses the shared cached coin universe. Final end-to-end validation across all pages remains for S06.
+- Notes: Scanner intentionally uses its own multi-pair/timeframe controls for batch work, but still depends on the shared coin list from PairContext.
 
-### R007 — Dark theme with Plotly chart integration
+### R007 — Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
 - Class: quality-attribute
 - Status: active
 - Description: Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
@@ -83,7 +48,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
 
-### R008 — 8 research modules for empirical parameter testing
+### R008 — Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
 - Class: primary-user-loop
 - Status: active
 - Description: Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
@@ -94,7 +59,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Analysis functions exist in research.py (938 lines). UI needs rebuild. Takeaway generators have 48 tests.
 
-### R009 — Backtesting engine with equity curve, per-trade P&L, cumulative returns
+### R009 — Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
 - Class: core-capability
 - Status: active
 - Description: Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
@@ -105,7 +70,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: StrategySettings already defined in config/settings.py with lookback, thresholds, capital, fees.
 
-### R010 — Performance metrics: Sharpe, Sortino, max drawdown, win rate, profit factor
+### R010 — Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
 - Class: core-capability
 - Status: active
 - Description: Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
@@ -116,7 +81,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: none
 
-### R011 — Strategy parameter sweeps with data-driven recommendations
+### R011 — The system can sweep parameters (z-score thresholds, lookback windows, etc.) across ranges and surface which combinations actually work on the user's data. Not just testing what the user asks — proactively showing what the data says.
 - Class: differentiator
 - Status: active
 - Description: The system can sweep parameters (z-score thresholds, lookback windows, etc.) across ranges and surface which combinations actually work on the user's data. Not just testing what the user asks — proactively showing what the data says.
@@ -127,7 +92,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Existing research modules do single-parameter sweeps. This extends to multi-parameter optimization with honest reporting.
 
-### R012 — Overfitting detection — flag suspicious metrics, parameter sensitivity warnings
+### R012 — The backtester and research tools actively warn when results look too good: Sharpe > 3, profit factor > 5 with few trades, results that collapse with small parameter changes, in-sample vs out-of-sample divergence.
 - Class: failure-visibility
 - Status: active
 - Description: The backtester and research tools actively warn when results look too good: Sharpe > 3, profit factor > 5 with few trades, results that collapse with small parameter changes, in-sample vs out-of-sample divergence.
@@ -138,7 +103,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Research confirms these thresholds as standard overfitting indicators.
 
-### R013 — Look-ahead bias prevention in backtesting engine
+### R013 — The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
 - Class: constraint
 - Status: active
 - Description: The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
@@ -149,7 +114,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Architectural enforcement: signals computed from rolling windows only, no future data access possible.
 
-### R014 — Walk-forward testing with rolling windows
+### R014 — Beyond simple train/test split: retrain strategy parameters on rolling windows and test on subsequent periods. This simulates what would actually happen if you re-optimized periodically.
 - Class: differentiator
 - Status: active
 - Description: Beyond simple train/test split: retrain strategy parameters on rolling windows and test on subsequent periods. This simulates what would actually happen if you re-optimized periodically.
@@ -160,7 +125,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: The existing OOS validation module is a stepping stone. Walk-forward extends this concept.
 
-### R015 — Honest reporting — always show assumptions, limitations, and confidence levels
+### R015 — Every backtest result, research finding, and recommendation explicitly states its assumptions, sample size, confidence level, and limitations. No vanity metrics. No hiding bad results.
 - Class: quality-attribute
 - Status: active
 - Description: Every backtest result, research finding, and recommendation explicitly states its assumptions, sample size, confidence level, and limitations. No vanity metrics. No hiding bad results.
@@ -171,7 +136,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Applies to research module takeaways, backtest summaries, and parameter recommendations.
 
-### R016 — Existing parquet cache + CCXT/Bitvavo data pipeline preserved
+### R016 — The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
 - Class: continuity
 - Status: active
 - Description: The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
@@ -182,7 +147,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: cache_manager.py and bitvavo_client.py stay as-is. API wraps them.
 
-### R017 — Paper trading with simulated execution on real-time data
+### R017 — Run strategies against live market data with simulated order execution. Track positions, fills, and P&L as if trading real money.
 - Class: core-capability
 - Status: active
 - Description: Run strategies against live market data with simulated order execution. Track positions, fills, and P&L as if trading real money.
@@ -193,7 +158,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Requires real-time or near-real-time data feed from Bitvavo.
 
-### R018 — Portfolio/position tracking dashboard
+### R018 — Dashboard showing current positions, unrealized P&L, trade history, and portfolio equity over time. For both paper and live trading.
 - Class: primary-user-loop
 - Status: active
 - Description: Dashboard showing current positions, unrealized P&L, trade history, and portfolio equity over time. For both paper and live trading.
@@ -204,7 +169,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: none
 
-### R019 — Live automated trading on Bitvavo
+### R019 — Execute real buy/sell orders on Bitvavo based on strategy signals. Automated position management.
 - Class: core-capability
 - Status: active
 - Description: Execute real buy/sell orders on Bitvavo based on strategy signals. Automated position management.
@@ -215,7 +180,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Requires Bitvavo API keys for trading (not just public data).
 
-### R020 — Risk management and position limits
+### R020 — Configurable risk limits: max position size, max concurrent positions, daily loss limits, stop-loss enforcement.
 - Class: constraint
 - Status: active
 - Description: Configurable risk limits: max position size, max concurrent positions, daily loss limits, stop-loss enforcement.
@@ -226,7 +191,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: none
 
-### R021 — Monitoring, alerting, and graceful recovery
+### R021 — The trading system monitors its own health, alerts on anomalies (missed signals, API errors, position drift), and recovers gracefully from restarts or connection drops.
 - Class: operability
 - Status: active
 - Description: The trading system monitors its own health, alerts on anomalies (missed signals, API errors, position drift), and recovers gracefully from restarts or connection drops.
@@ -237,7 +202,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: Especially important for always-on server deployment later.
 
-### R022 — Platform never feels like a black box — math and reasoning always visible
+### R022 — Every formula, statistical test, parameter choice, and trading decision is visible and explainable. The Academy shows the why. The research tools show the evidence. The backtester shows the assumptions.
 - Class: quality-attribute
 - Status: active
 - Description: Every formula, statistical test, parameter choice, and trading decision is visible and explainable. The Academy shows the why. The research tools show the evidence. The backtester shows the assumptions.
@@ -248,7 +213,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency).
 - Notes: Applies to every pillar. This is what "transparent + honest" means in practice.
 
-### R023 — Data quality validation before backtesting (missing candles, gaps)
+### R023 — Before running a backtest, validate the input data for completeness: check for missing candles, timestamp gaps, and anomalous values. Report issues clearly.
 - Class: failure-visibility
 - Status: active
 - Description: Before running a backtest, validate the input data for completeness: check for missing candles, timestamp gaps, and anomalous values. Report issues clearly.
@@ -261,18 +226,42 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 ## Validated
 
-### R001 — Academy teaches stat arb with 6 structured steps using real pair data
-- Validated by: S03 (steps 1-3) + S04 (steps 4-6). Full 6-step flow verified end-to-end with BTC/ETH pair.
+### R001 — The Academy walks the user through statistical arbitrage in 6 steps: pair selection → price comparison → correlation vs cointegration → cointegration test → spread → z-score & signals. Each step uses the user's actual pair data, not synthetic examples.
+- Class: primary-user-loop
+- Status: validated
+- Description: The Academy walks the user through statistical arbitrage in 6 steps: pair selection → price comparison → correlation vs cointegration → cointegration test → spread → z-score & signals. Each step uses the user's actual pair data, not synthetic examples.
+- Why it matters: This is how the user learns the domain — the prerequisite for everything else. Real data makes concepts concrete and memorable.
+- Source: user
+- Primary owning slice: M001/S03
+- Supporting slices: M001/S04
+- Validation: S03: Steps 1-3 working with real data and stepper infrastructure. S04: Steps 4-6 complete with real data, interactive charts, and educational panels. Full 6-step flow verified end-to-end with BTC/ETH pair.
+- Notes: The 6 steps match the existing Dash implementation. Content is right, execution needs polish.
 
-### R002 — Three-layer educational panels (Intuition → How It Works → Your Pair)
-- Validated by: S03 (steps 1-3) + S04 (steps 4-6). All 6 steps have 3-layer EducationalPanel with populated content.
+### R002 — Each Academy step provides content at three depths: 💡 Intuition (analogy/everyday explanation), 🔧 How It Works (formula, mechanics, the actual math), 📊 Your Pair (what the numbers mean for the selected pair).
+- Class: primary-user-loop
+- Status: validated
+- Description: Each Academy step provides content at three depths: 💡 Intuition (analogy/everyday explanation), 🔧 How It Works (formula, mechanics, the actual math), 📊 Your Pair (what the numbers mean for the selected pair).
+- Why it matters: Different learning depths for different moments. The user should never feel like the math is hidden — but shouldn't be forced to see it all at once either.
+- Source: user
+- Primary owning slice: M001/S03
+- Supporting slices: M001/S04
+- Validation: All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps.
+- Notes: Accordion-based panels in the existing Dash app. Rebuild with React components.
 
-### R003 — Interactive charts with live parameter sliders in Academy
-- Validated by: S04. Step 5 rolling window slider, Step 6 entry/exit/stop sliders. Zero API calls on interaction.
+### R003 — Academy steps 5-6 (spread and z-score) have parameter sliders that update charts in real-time — lookback window, entry/exit thresholds, etc.
+- Class: primary-user-loop
+- Status: validated
+- Description: Academy steps 5-6 (spread and z-score) have parameter sliders that update charts in real-time — lookback window, entry/exit thresholds, etc.
+- Why it matters: Interactive parameter exploration is how the user builds intuition for what parameter values actually mean.
+- Source: user
+- Primary owning slice: M001/S04
+- Supporting slices: none
+- Validation: Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab.
+- Notes: Existing Dash implementation has this but with callback jank. React state management should make this smoother.
 
 ## Deferred
 
-### R024 — Multi-exchange support
+### R024 — Support exchanges beyond Bitvavo (Binance, Kraken, etc.)
 - Class: core-capability
 - Status: deferred
 - Description: Support exchanges beyond Bitvavo (Binance, Kraken, etc.)
@@ -283,7 +272,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: User explicitly chose Bitvavo-only for now. Revisit if trading scope expands.
 
-### R025 — Server deployment (home server)
+### R025 — Deploy the platform to a home server for always-on operation.
 - Class: operability
 - Status: deferred
 - Description: Deploy the platform to a home server for always-on operation.
@@ -294,7 +283,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: unmapped
 - Notes: User confirmed: local during development, migrate to home server if live trading succeeds.
 
-### R026 — Glossary with searchable terms and cross-links
+### R026 — Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
 - Class: primary-user-loop
 - Status: deferred
 - Description: Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
@@ -307,7 +296,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 ## Out of Scope
 
-### R027 — Mobile app
+### R027 — Native mobile application for iOS or Android.
 - Class: anti-feature
 - Status: out-of-scope
 - Description: Native mobile application for iOS or Android.
@@ -318,7 +307,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Validation: n/a
 - Notes: Personal tool used on laptop/desktop.
 
-### R028 — Multi-user / auth system
+### R028 — User accounts, authentication, or multi-tenant support.
 - Class: anti-feature
 - Status: out-of-scope
 - Description: User accounts, authentication, or multi-tenant support.
@@ -333,12 +322,12 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | primary-user-loop | validated | M001/S03 | M001/S04 | S03+S04: all 6 steps proven |
-| R002 | primary-user-loop | validated | M001/S03 | M001/S04 | S03+S04: 3-layer panels on all 6 steps |
-| R003 | primary-user-loop | validated | M001/S04 | none | S04: sliders + zero API calls proven |
-| R004 | core-capability | active | M001/S02 | M001/S03-S06 | unmapped |
+| R001 | primary-user-loop | validated | M001/S03 | M001/S04 | S03: Steps 1-3 working with real data and stepper infrastructure. S04: Steps 4-6 complete with real data, interactive charts, and educational panels. Full 6-step flow verified end-to-end with BTC/ETH pair. |
+| R002 | primary-user-loop | validated | M001/S03 | M001/S04 | All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps. |
+| R003 | primary-user-loop | validated | M001/S04 | none | Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab. |
+| R004 | core-capability | active | M001/S02 | M001/S03, M001/S04, M001/S05, M001/S06 | S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive pages all run in React against the FastAPI backend. Full milestone validation still depends on S06 integration and final replacement proof across the remaining navigation surfaces. |
 | R005 | core-capability | active | M001/S01 | none | unmapped |
-| R006 | primary-user-loop | active | M001/S02 | M001/S03, S05 | unmapped |
+| R006 | primary-user-loop | active | M001/S02 | M001/S03, M001/S05 | S02 established the persistent header selector. S03 proved Academy consumes PairContext selections, and S05 proved Deep Dive reads asset1/asset2/timeframe from the header while Scanner reuses the shared cached coin universe. Final end-to-end validation across all pages remains for S06. |
 | R007 | quality-attribute | active | M001/S02 | none | unmapped |
 | R008 | primary-user-loop | active | M002/S01 | none | unmapped |
 | R009 | core-capability | active | M002/S02 | none | unmapped |
@@ -347,14 +336,14 @@ Use it to track what is actively in scope, what has been validated by completed 
 | R012 | failure-visibility | active | M002/S03 | none | unmapped |
 | R013 | constraint | active | M002/S02 | none | unmapped |
 | R014 | differentiator | active | M002/S03 | none | unmapped |
-| R015 | quality-attribute | active | M002/S02 | M002/S01, S03 | unmapped |
+| R015 | quality-attribute | active | M002/S02 | M002/S01, M002/S03 | unmapped |
 | R016 | continuity | active | M001/S01 | none | unmapped |
 | R017 | core-capability | active | M003/S01 | none | unmapped |
 | R018 | primary-user-loop | active | M003/S02 | M004 | unmapped |
 | R019 | core-capability | active | M004/S01 | none | unmapped |
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
-| R022 | quality-attribute | active | M001/S03 | M001/S04, M002 | S03+S04: Academy visibility complete |
+| R022 | quality-attribute | active | M001/S03 | M001/S04, M002/S01, M002/S02 | S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency). |
 | R023 | failure-visibility | active | M002/S02 | none | unmapped |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
@@ -366,5 +355,5 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 - Active requirements: 20
 - Mapped to slices: 20
-- Validated: 3
+- Validated: 3 (R001, R002, R003)
 - Unmapped active requirements: 0
