@@ -15,21 +15,20 @@ The platform must never feel like a black box. Every formula, assumption, and de
 
 ## Current State
 
-The V1 Dash app is being migrated to V2 with a new tech stack. What exists and works:
+M001 is complete. The active user-facing application now runs on the V2 stack: Next.js 16 frontend + FastAPI backend over the existing Python analysis core. What exists and works:
 
 - **Data pipeline**: CCXT → Bitvavo API → parquet cache with delta updates. ~20 EUR pairs cached at 1h and 4h timeframes (44 total datasets).
 - **Analysis engine**: `PairAnalysis` class (Engle-Granger cointegration, ADF test, spread, z-score, half-life, correlation). 8 empirical research functions in `analysis/research.py` (938 lines, zero Dash imports).
-- **FastAPI REST API** (S01 ✅): 7 endpoints wrapping PairAnalysis and DataCacheManager — health, pairs list, OHLCV, cointegration, spread, zscore, stationarity. 51 tests, Pydantic models, OpenAPI docs at /docs. CORS enabled for localhost:3000.
-- **Next.js Frontend Shell** (S02 ✅): Dark-themed AppShell with Mantine v8, sidebar navigation (4 pages), global pair selector populated from API, SSR-safe PlotlyChart wrapper with ported mantine_dark template. `npm run build` passes clean.
-- **Academy Steps 1-3** (S03 ✅): 6-step stepper with free navigation, step dispatch engine, data caching. Step 1: curated pair cards setting PairContext. Step 2: normalized/raw Plotly price charts with correlation badge. Step 3: synthetic concept subplot chart with real pair comparison badges. 3-layer EducationalPanel on every step. Full frontend→API→Plotly pipeline proven.
-- **Academy Steps 4-6** (S04 ✅): Cointegration test visualization (ADF number line, regression scatter, pass/fail verdict), spread chart with rolling window slider and ±1σ/2σ/3σ bands, z-score chart with 3 parameter sliders and signal state machine. All slider interactions are client-side with zero API calls. Full 6-step Academy flow complete.
-- **Scanner + Deep Dive** (S05 ✅): Scanner page now runs batch cointegration scans with progress feedback, sorted/highlighted result rows, a p-value histogram, and graceful ⚠️ failure rows. Deep Dive now fetches real single-pair analysis, renders 8 stat cards plus 4 dark-themed Plotly charts, and recomputes configurable z-scores client-side from spread data.
-- **Visualization**: Plotly figure builders for spread plots and educational concepts.
-- **Config**: Pydantic settings with Bitvavo creds, data paths, strategy params.
-- **Tests**: 99 tests (48 research + 51 API) plus live runtime verification for Academy, Scanner, and Deep Dive pages.
-- **Academy (steps 1-6)**: ~2900 lines across 10 files — AcademyStepper, EducationalPanel, StepPairSelector, StepPriceComparison, StepCorrelationVsCointegration, StepCointegrationTest, StepSpread, StepZScoreSignals, Academy page, extended API types.
+- **FastAPI REST API** (S01 ✅): 7 endpoints wrapping PairAnalysis and DataCacheManager — health, pairs list, OHLCV, cointegration, spread, zscore, stationarity. 51 API tests, Pydantic models, OpenAPI docs at /docs, CORS enabled for localhost:3000.
+- **Next.js frontend shell** (S02 ✅): Dark-themed Mantine AppShell with sidebar navigation, global pair selector populated from API, and SSR-safe PlotlyChart wrapper using the ported `mantine_dark` template.
+- **Academy** (S03 + S04 ✅): Complete 6-step guided learning flow using real pair data, interactive Plotly charts, 3-layer EducationalPanels, and client-side slider-driven exploration for spread/z-score parameters.
+- **Scanner + Deep Dive** (S05 ✅): Batch cointegration scanner with progress/failure handling plus a full single-pair Deep Dive analysis view with stat cards and four diagnostic charts.
+- **Glossary + integration proof** (S06 ✅): Searchable 17-term glossary with stable deep links, Academy cross-links, hydration-noise fix in the shared shell, and final live route-loop UAT across Academy → Glossary → Deep Dive → Scanner → Academy.
+- **Visualization**: Plotly figure builders for spread plots and educational concepts, rendered in React via `react-plotly.js`.
+- **Config**: Pydantic settings with Bitvavo creds, data paths, and strategy parameters.
+- **Verification**: 99 Python tests passing (`48 research + 51 API`), frontend build passing, Academy glossary link source check passing, and live runtime UAT recorded for the integrated app.
 
-The Dash frontend is being replaced with Next.js + FastAPI for better UX control and interactivity. Backend API (S01), frontend shell (S02), Academy (S03+S04), and Scanner + Deep Dive (S05) are complete. Next: S06 glossary, polish, and final milestone integration verification.
+The Dash implementation remains as prior art in the repository, but the milestone-scope running application surface is now the Next.js/FastAPI stack. Next up is M002: port the research modules and build the backtesting engine with the same transparency standard.
 
 ## Architecture / Key Patterns
 
@@ -48,7 +47,7 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 
 <!-- Check off milestones as they complete. One-liners should describe intent, not implementation detail. -->
 
-- [ ] M001: Frontend Foundation + Academy — Next.js/FastAPI stack with the 6-step Academy rebuilt for real interactivity
+- [x] M001: Frontend Foundation + Academy — Next.js/FastAPI stack with the 6-step Academy rebuilt for real interactivity
 - [ ] M002: Research & Backtest — 8 research modules ported + backtesting engine with honest, data-driven reporting
 - [ ] M003: Paper Trading — Real-time data feed, simulated execution, portfolio tracking
 - [ ] M004: Live Automated Trading — Real order execution on Bitvavo with risk management and monitoring
