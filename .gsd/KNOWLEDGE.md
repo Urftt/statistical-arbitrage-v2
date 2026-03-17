@@ -49,3 +49,7 @@ The `PlotlyChart` wrapper in `frontend/components/charts/PlotlyChart.tsx` deep-m
 ## TypeScript TS2783: spread order matters for duplicate properties
 
 When spreading a style object that contains `title` and then explicitly setting `title`, TypeScript raises TS2783 "specified more than once". Fix: put the spread **before** explicit overrides, not after. `{ ...DARK_AXIS_STYLE, title: { text: 'Time' } }` not `{ title: { text: 'Time' }, ...DARK_AXIS_STYLE }`.
+
+## Plotly.js TypeScript: `markers+text` mode is not in the union type
+
+The `@types/plotly.js` `ScatterData.mode` union includes `'text+markers'` but NOT `'markers+text'`. Both are valid at runtime in Plotly, but TypeScript will reject `'markers+text'`. Always use `'text+markers'` instead to avoid TS2322.

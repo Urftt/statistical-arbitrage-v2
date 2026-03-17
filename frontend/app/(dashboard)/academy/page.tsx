@@ -6,6 +6,7 @@ import { AcademyStepper } from '@/components/academy/AcademyStepper';
 import { StepPairSelector } from '@/components/academy/StepPairSelector';
 import { StepPriceComparison } from '@/components/academy/StepPriceComparison';
 import { StepCorrelationVsCointegration } from '@/components/academy/StepCorrelationVsCointegration';
+import { StepCointegrationTest } from '@/components/academy/StepCointegrationTest';
 import { usePairContext } from '@/contexts/PairContext';
 import {
   fetchOHLCV,
@@ -140,6 +141,17 @@ export default function AcademyPage() {
         return (
           <StepCorrelationVsCointegration
             cointegrationData={cointData}
+            loading={cointLoading}
+            asset1={asset1}
+            asset2={asset2}
+          />
+        );
+      case 3:
+        return (
+          <StepCointegrationTest
+            cointegrationData={cointData}
+            ohlcv1={ohlcv1}
+            ohlcv2={ohlcv2}
             loading={cointLoading}
             asset1={asset1}
             asset2={asset2}

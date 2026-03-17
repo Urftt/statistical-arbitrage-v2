@@ -112,3 +112,10 @@ Build the Step 4 (Cointegration Test) component — the simplest of the three ne
 
 - `frontend/components/academy/StepCointegrationTest.tsx` — new ~350-line component with ADF number line chart, regression scatter, hedge ratio card, traffic light alert, educational panel
 - `frontend/app/(dashboard)/academy/page.tsx` — modified with 1 new import + 1 new switch case (case 3)
+
+## Observability Impact
+
+- **New runtime signals**: No new API calls — step 4 consumes the same `CointegrationResponse` and `OHLCVResponse` already fetched by the Academy page (from S03). No new `console.error` paths added.
+- **Inspection surfaces**: Two `.js-plotly-plot` elements render when step 4 is active (ADF number line + regression scatter). Badge text shows exact ADF statistic, p-value, and hedge ratio values. Pass/fail alert color (green/orange) indicates cointegration verdict. EducationalPanel accordion items render with `value="intuition"`, `value="mechanics"`, `value="your-pair"`.
+- **Failure visibility**: If `cointegrationData` is null, a yellow "data not available" alert renders instead of charts. If the switch case doesn't match, the default placeholder text "Steps 4–6 coming in S04" appears. Missing charts = PlotlyChart Skeleton remains visible.
+- **How to inspect**: Navigate to Academy → select pair → click step 4 (stepper button). Verify: 2 Plotly charts, hedge ratio badge text, pass/fail alert, 3 accordion panels.

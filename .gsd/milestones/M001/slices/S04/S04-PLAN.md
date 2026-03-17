@@ -44,7 +44,7 @@
 
 ## Tasks
 
-- [ ] **T01: Build StepCointegrationTest component and wire step 4 into Academy** `est:45m`
+- [x] **T01: Build StepCointegrationTest component and wire step 4 into Academy** `est:45m`
   - Why: Step 4 is the simplest of the three new steps (no sliders). It proves the data display pattern works for steps 4-6 and delivers ADF visualization, regression analysis, and the cointegration pass/fail verdict.
   - Files: `frontend/components/academy/StepCointegrationTest.tsx` (new), `frontend/app/(dashboard)/academy/page.tsx`
   - Do: Create StepCointegrationTest with: (1) ADF number line chart — Plotly shapes for colored zones (reject at 1%/5%/10%, fail to reject), vline annotations for critical values, diamond marker for test statistic. (2) Regression scatter plot — price scatter + OLS line from hedge_ratio and intercept. (3) Hedge ratio badge card. (4) Pass/fail traffic light Alert. (5) EducationalPanel with all 3 layers. Port content from Dash learn.py lines 837-1120. Wire step 4 into page.tsx switch (case 3). Step receives cointegrationData, ohlcv1, ohlcv2, loading, asset1, asset2 props.
