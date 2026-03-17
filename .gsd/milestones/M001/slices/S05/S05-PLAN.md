@@ -34,6 +34,16 @@
   - Click "Analyze" — 8 stat cards render with real values
   - 4 charts render with dark theme
 - Navigate between Scanner ↔ Deep Dive ↔ Academy — no broken states
+- **Failure path**: Select 2 coins, stop the API server, click "Run Scan" — progress bar completes, results table shows ⚠️ rows for all pairs, no crash
+
+## Observability / Diagnostics
+
+- **Scanner batch errors**: Failed pair analyses render a ⚠️ row in the results table with null metric values — visually inspectable without opening console. The browser console logs the underlying API error via `console.error` in `lib/api.ts` `apiFetch()`.
+- **Progress surface**: Scanner progress bar and "Scanning X/Y pairs…" text provide real-time feedback during batch execution. Completed count is tracked in React state.
+- **Status alert**: Post-scan summary alert shows cointegrated/not counts — serves as a quick health check for the entire batch.
+- **Deep Dive API errors**: Shown inline via Mantine Alert with the error message text, not silent failures.
+- **Network inspection**: All API calls go through `lib/api.ts` `apiFetch()` which logs `console.error` on fetch failure or non-OK status, including URL and status code.
+- **Redaction**: No secrets or API keys are used on these pages (public data only). No redaction constraints needed.
 
 ## Integration Closure
 
@@ -43,7 +53,7 @@
 
 ## Tasks
 
-- [ ] **T01: Build Scanner page with batch cointegration scan, results table, and p-value chart** `est:45m`
+- [x] **T01: Build Scanner page with batch cointegration scan, results table, and p-value chart** `est:45m`
   - Why: The Scanner page is the primary discovery tool — users select coins, run a batch scan, and find cointegrated pairs. It's the more complex of the two pages due to batch API calls with progress feedback and a sorted results table.
   - Files: `frontend/app/(dashboard)/scanner/page.tsx`
   - Do: Replace placeholder with `'use client'` component. MultiSelect populated from `usePairContext().coins` (show base currency names, construct `"COIN/EUR"` for API calls). "Run Scan" button fires `postCointegration()` for all N*(N-1)/2 pair combinations using `Promise.allSettled()`. Track completion count in state → Mantine Progress bar. Build results array with same columns as Dash original (Pair, Cointegrated, p-value, Test Stat, Hedge Ratio, Half-life, Correlation, Skew, Kurt, Datapoints). Sort results cointegrated-first then by p-value ascending. Render Mantine Table with green-highlighted rows for cointegrated pairs. P-value histogram via PlotlyChart with dashed red line at x=0.05. Status alert showing scan summary. Handle errors gracefully (pairs that fail analysis show "⚠️" in table). Include timeframe select and days-back NumberInput.

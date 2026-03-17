@@ -70,6 +70,13 @@ This is a port of the Dash `pair_scanner.py` (316 lines) to a React `'use client
 - P-value histogram renders below the table
 - Status alert shows scan summary
 
+## Observability Impact
+
+- **Progress state**: `completedCount` / `totalCount` in React state drives a visible Progress bar and text — inspectable via React DevTools or by observing the UI.
+- **Batch error visibility**: Failed pair API calls render ⚠️ in the Cointegrated column and null/"—" for metrics. The original `apiFetch()` error is logged to `console.error` with URL and status.
+- **Scan summary alert**: Post-scan Alert component shows pair count, cointegrated count, non-cointegrated count — serves as a quick diagnostic for the batch result.
+- **Browser console**: All API errors from `postCointegration()` are logged via `apiFetch()` with URL and HTTP status. Filter browser console for "API error" or "API fetch failed" to inspect.
+
 ## Inputs
 
 - `frontend/app/(dashboard)/scanner/page.tsx` — current placeholder (to be replaced)
