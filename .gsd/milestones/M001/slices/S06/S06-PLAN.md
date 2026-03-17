@@ -40,7 +40,7 @@
 
 ## Tasks
 
-- [ ] **T01: Port the glossary contract and replace the glossary stub with the real searchable page** `est:45m`
+- [x] **T01: Port the glossary contract and replace the glossary stub with the real searchable page** `est:45m`
   - Why: R026 cannot be validated until the React app has a real glossary route backed by one authoritative term list and anchor/slug contract.
   - Files: `frontend/lib/glossary.ts`, `frontend/components/glossary/GlossaryLink.tsx`, `frontend/app/(dashboard)/glossary/page.tsx`, `src/statistical_arbitrage/app/pages/glossary.py`
   - Do: Port the 17-term Dash glossary dataset into a typed frontend module, add one shared slug/id helper that exactly preserves the old `glossary-{slug}` behavior (lowercase, spaces/slashes → hyphens), add a tiny reusable glossary-link helper that consumes the same helper, and replace the placeholder glossary route with a client-side searchable page that filters on term/alias/definition, renders all terms by default, shows stable card ids for deep links, and exposes an explicit no-results state inside the existing Mantine dark theme.

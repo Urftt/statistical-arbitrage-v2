@@ -48,3 +48,9 @@ Build the missing React glossary route first, using the old Dash glossary as the
 - `frontend/lib/glossary.ts` — typed glossary data plus shared slug/id helpers.
 - `frontend/components/glossary/GlossaryLink.tsx` — reusable helper for Academy cross-links.
 - `frontend/app/(dashboard)/glossary/page.tsx` — real client-side glossary page with search, empty-state copy, and stable anchored cards.
+
+## Observability Impact
+
+- Runtime signals: the `/glossary` route now exposes a visible search field, 17 rendered glossary cards on the default view, stable `id="glossary-{slug}"` anchors on each card, and an explicit no-results state when filtering removes all matches.
+- Inspection surfaces: future agents can verify the task via the shared `frontend/lib/glossary.ts` dataset/helpers, the rendered DOM ids on glossary cards, the browser URL hash after visiting deep links like `/glossary#glossary-cointegration`, and the live card count/filter results in the page UI.
+- Failure visibility: anchor-contract regressions will surface as broken or missing card ids / wrong URL hashes, while filtering regressions will surface as incorrect match sets or a missing no-results message for unmatched queries.
