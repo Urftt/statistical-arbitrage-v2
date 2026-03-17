@@ -4,17 +4,6 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
-### R004 — The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
-- Class: core-capability
-- Status: active
-- Description: The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
-- Why it matters: Dash's callback model caused jank and limited what was possible for the Academy's guided learning experience. The look and feel of the learning flow is pedagogically important.
-- Source: user
-- Primary owning slice: M001/S02
-- Supporting slices: M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive pages all run in React against the FastAPI backend. Full milestone validation still depends on S06 integration and final replacement proof across the remaining navigation surfaces.
-- Notes: Advanced significantly by S05, but left active until S06 confirms the complete frontend replacement experience.
-
 ### R005 — FastAPI wraps the existing Python analysis code (PairAnalysis, research functions, data pipeline) as REST API endpoints. The frontend calls these endpoints instead of running Python directly.
 - Class: core-capability
 - Status: active
@@ -25,28 +14,6 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: none
 - Validation: unmapped
 - Notes: analysis/research.py already has zero Dash imports. Migration path is natural.
-
-### R006 — A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
-- Class: primary-user-loop
-- Status: active
-- Description: A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
-- Why it matters: Pair selection is the common entry point for every feature — Academy, Scanner, Deep Dive, Research. It should be always-visible and consistent.
-- Source: user
-- Primary owning slice: M001/S02
-- Supporting slices: M001/S03, M001/S05
-- Validation: S02 established the persistent header selector. S03 proved Academy consumes PairContext selections, and S05 proved Deep Dive reads asset1/asset2/timeframe from the header while Scanner reuses the shared cached coin universe. Final end-to-end validation across all pages remains for S06.
-- Notes: Scanner intentionally uses its own multi-pair/timeframe controls for batch work, but still depends on the shared coin list from PairContext.
-
-### R007 — Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
-- Class: quality-attribute
-- Status: active
-- Description: Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
-- Why it matters: Visual consistency matters for a tool you use daily. The existing Plotly template is well-tuned.
-- Source: user
-- Primary owning slice: M001/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
 
 ### R008 — Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
 - Class: primary-user-loop
@@ -259,6 +226,50 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab.
 - Notes: Existing Dash implementation has this but with callback jank. React state management should make this smoother.
 
+### R004 — The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
+- Class: core-capability
+- Status: validated
+- Description: The Dash app is replaced with a Next.js React frontend. This gives full control over layout, animations, state management, and component composition.
+- Why it matters: Dash's callback model caused jank and limited what was possible for the Academy's guided learning experience. The look and feel of the learning flow is pedagogically important.
+- Source: user
+- Primary owning slice: M001/S02
+- Supporting slices: M001/S03, M001/S04, M001/S05, M001/S06
+- Validation: S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive in React against the FastAPI backend. S06 final live UAT closed the route loop Academy → Glossary → Deep Dive → Scanner → Academy on localhost and confirmed the running app no longer depends on Dash surfaces.
+- Notes: Advanced significantly by S05, but left active until S06 confirmed the complete frontend replacement experience.
+
+### R006 — A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
+- Class: primary-user-loop
+- Status: validated
+- Description: A persistent pair selector (asset1, asset2, timeframe) in the app header that propagates to all pages. Pairs populated from cached data.
+- Why it matters: Pair selection is the common entry point for every feature — Academy, Scanner, Deep Dive, Research. It should be always-visible and consistent.
+- Source: user
+- Primary owning slice: M001/S02
+- Supporting slices: M001/S03, M001/S05
+- Validation: S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work.
+- Notes: Scanner intentionally uses its own multi-pair/timeframe controls for batch work, but still depends on the shared coin list from PairContext.
+
+### R007 — Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
+- Class: quality-attribute
+- Status: validated
+- Description: Consistent dark theme across the entire app. Plotly charts use the existing mantine_dark template (or equivalent) for visual cohesion. Charts render in the React app via react-plotly.js.
+- Why it matters: Visual consistency matters for a tool you use daily. The existing Plotly template is well-tuned.
+- Source: user
+- Primary owning slice: M001/S02
+- Supporting slices: none
+- Validation: S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop.
+- Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
+
+### R026 — Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
+- Class: primary-user-loop
+- Status: validated
+- Description: Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
+- Why it matters: Quick reference while learning. The existing Dash glossary works but is deprioritized for M001.
+- Source: user
+- Primary owning slice: M001/S06
+- Supporting slices: none
+- Validation: S06 live UAT verified /glossary renders all 17 terms, filters correctly for term/alias/definition queries (cointegration, beta, mean), shows the explicit empty state, resolves direct hashes like #glossary-cointegration and #glossary-z-score, and Academy steps 2-6 click through to the correlation, cointegration, hedge ratio, ADF test, spread, mean reversion, stationarity, and z-score anchors.
+- Notes: Already built in Dash. Ported and proven live in M001/S06.
+
 ## Deferred
 
 ### R024 — Support exchanges beyond Bitvavo (Binance, Kraken, etc.)
@@ -282,17 +293,6 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: none
 - Validation: unmapped
 - Notes: User confirmed: local during development, migrate to home server if live trading succeeds.
-
-### R026 — Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
-- Class: primary-user-loop
-- Status: deferred
-- Description: Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
-- Why it matters: Quick reference while learning. The existing Dash glossary works but is deprioritized for M001.
-- Source: user
-- Primary owning slice: M001/S06
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Already built in Dash. Port during M001/S06 polish slice.
 
 ## Out of Scope
 
@@ -325,10 +325,10 @@ This file is the explicit capability and coverage contract for the project.
 | R001 | primary-user-loop | validated | M001/S03 | M001/S04 | S03: Steps 1-3 working with real data and stepper infrastructure. S04: Steps 4-6 complete with real data, interactive charts, and educational panels. Full 6-step flow verified end-to-end with BTC/ETH pair. |
 | R002 | primary-user-loop | validated | M001/S03 | M001/S04 | All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps. |
 | R003 | primary-user-loop | validated | M001/S04 | none | Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab. |
-| R004 | core-capability | active | M001/S02 | M001/S03, M001/S04, M001/S05, M001/S06 | S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive pages all run in React against the FastAPI backend. Full milestone validation still depends on S06 integration and final replacement proof across the remaining navigation surfaces. |
+| R004 | core-capability | validated | M001/S02 | M001/S03, M001/S04, M001/S05, M001/S06 | S02 established the Next.js app shell and routing. S03-S05 proved Academy, Scanner, and Deep Dive in React against the FastAPI backend. S06 final live UAT closed the route loop Academy → Glossary → Deep Dive → Scanner → Academy on localhost and confirmed the running app no longer depends on Dash surfaces. |
 | R005 | core-capability | active | M001/S01 | none | unmapped |
-| R006 | primary-user-loop | active | M001/S02 | M001/S03, M001/S05 | S02 established the persistent header selector. S03 proved Academy consumes PairContext selections, and S05 proved Deep Dive reads asset1/asset2/timeframe from the header while Scanner reuses the shared cached coin universe. Final end-to-end validation across all pages remains for S06. |
-| R007 | quality-attribute | active | M001/S02 | none | unmapped |
+| R006 | primary-user-loop | validated | M001/S02 | M001/S03, M001/S05 | S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work. |
+| R007 | quality-attribute | validated | M001/S02 | none | S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop. |
 | R008 | primary-user-loop | active | M002/S01 | none | unmapped |
 | R009 | core-capability | active | M002/S02 | none | unmapped |
 | R010 | core-capability | active | M002/S02 | none | unmapped |
@@ -347,13 +347,13 @@ This file is the explicit capability and coverage contract for the project.
 | R023 | failure-visibility | active | M002/S02 | none | unmapped |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
-| R026 | primary-user-loop | deferred | M001/S06 | none | unmapped |
+| R026 | primary-user-loop | validated | M001/S06 | none | S06 live UAT verified /glossary renders all 17 terms, filters correctly for term/alias/definition queries (cointegration, beta, mean), shows the explicit empty state, resolves direct hashes like #glossary-cointegration and #glossary-z-score, and Academy steps 2-6 click through to the correlation, cointegration, hedge ratio, ADF test, spread, mean reversion, stationarity, and z-score anchors. |
 | R027 | anti-feature | out-of-scope | none | none | n/a |
 | R028 | anti-feature | out-of-scope | none | none | n/a |
 
 ## Coverage Summary
 
-- Active requirements: 20
-- Mapped to slices: 20
-- Validated: 3 (R001, R002, R003)
+- Active requirements: 17
+- Mapped to slices: 17
+- Validated: 7 (R001, R002, R003, R004, R006, R007, R026)
 - Unmapped active requirements: 0

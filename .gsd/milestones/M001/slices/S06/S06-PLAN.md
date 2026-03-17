@@ -54,7 +54,7 @@
   - Verify: `cd frontend && npx tsc --noEmit && npm run build`; live check each Academy step 2-6 for the expected linked terms and confirm clicking them lands on the correct glossary anchor without broken layout.
   - Done when: all planned Academy glossary links are live, hash-stable, and visually integrated with the existing UI.
 
-- [ ] **T03: Run the final live integration pass and update milestone proof artifacts** `est:35m`
+- [x] **T03: Run the final live integration pass and update milestone proof artifacts** `est:35m`
   - Why: S06 is the final assembly slice for M001, so completion depends on live end-to-end evidence and updated requirement traceability, not just merged UI code.
   - Files: `.gsd/milestones/M001/slices/S06/S06-UAT.md`, `.gsd/REQUIREMENTS.md`, `.gsd/milestones/M001/M001-ROADMAP.md`, `.gsd/milestones/M001/slices/S06/S06-ASSESSMENT.md`
   - Do: Run typecheck/build, launch the API and frontend, and perform the final browser UAT across glossary search/anchors, Academy link-outs, Academy → Glossary → Deep Dive → Scanner → Academy navigation, header/sidebar persistence, and dark-theme consistency. Record concrete evidence in `S06-UAT.md`, then update requirement proof/statuses (at minimum R026, and any supporting requirements fully closed by the evidence) plus the roadmap/slice assessment to reflect the finished milestone state.

@@ -1,5 +1,7 @@
 # M001: Frontend Foundation + Academy
 
+**Status:** complete (closed by S06 live UAT on 2026-03-17; see `.gsd/milestones/M001/slices/S06/S06-UAT.md`)
+
 **Vision:** Rebuild the statistical arbitrage platform's UI as a Next.js React frontend with FastAPI Python backend. The Academy — a 6-step guided learning flow using real pair data — is the centerpiece. Every page should feel smooth, interactive, and transparent.
 
 ## Success Criteria
@@ -69,7 +71,7 @@ This milestone is complete only when all are true:
 - [x] **S05: Pair Scanner + Deep Dive Pages** `risk:low` `depends:[S01,S02]`
   > After this: Scanner page runs batch cointegration across selected pairs and displays results; Deep Dive page shows full single-pair analysis with all metrics.
 
-- [ ] **S06: Glossary + Polish + Integration Test** `risk:low` `depends:[S03,S04,S05]`
+- [x] **S06: Glossary + Polish + Integration Test** `risk:low` `depends:[S03,S04,S05]`
   > After this: all pages work together seamlessly — glossary with search, cross-links from Academy, consistent styling, no broken navigation or dead states.
 
 ## Boundary Map

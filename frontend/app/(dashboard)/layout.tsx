@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { AppShell } from '@mantine/core';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -13,12 +14,26 @@ import { PairProvider } from '@/contexts/PairContext';
  *
  * `PairProvider` wraps the entire shell so header selects and all pages
  * share the same global pair/timeframe state.
+ *
+ * Mantine generates runtime ids/classNames for several layout primitives.
+ * Rendering the shell only after mount keeps the server and initial client tree
+ * identical, which avoids hydration mismatch noise during local UAT.
  */
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <PairProvider>
       <AppShell
