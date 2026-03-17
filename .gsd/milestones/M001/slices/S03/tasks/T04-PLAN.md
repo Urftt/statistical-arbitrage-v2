@@ -123,3 +123,11 @@ Build the Correlation vs Cointegration step — the conceptual heart of the Acad
 
 - `frontend/components/academy/StepCorrelationVsCointegration.tsx` — new file with synthetic concept chart (Plotly subplots), pair comparison badges, educational panel
 - `frontend/app/(dashboard)/academy/page.tsx` — updated step dispatch for activeStep===2
+
+## Observability Impact
+
+- **Concept chart rendering**: `.js-plotly-plot` CSS selector confirms the subplot chart rendered in the DOM. Both subplots are visible even without a pair selected.
+- **Pair comparison badges**: When a pair is selected, 3 badges (Correlation, Cointegration, p-value) appear in the DOM with exact values from the API response. Badge text contains `r = X.XXX`, `Cointegrated`/`Not Cointegrated`, and `p = X.XXXX`.
+- **No-pair alert**: When no pair is selected, the "No pair selected" Mantine Alert renders (landmark count increases from 3→4 due to the alert region).
+- **API errors**: `console.error('Academy fetch failed: ...')` in `page.tsx` surfaces any fetch failures with URL + status code.
+- **Build safety**: `npm run build` exit code 0 confirms SSR safety — the Plotly subplot layout with xaxis2/yaxis2 does not break server rendering.

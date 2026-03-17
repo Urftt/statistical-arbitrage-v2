@@ -41,3 +41,11 @@ plotly.js accesses `window`/`document` at import time. In Next.js, `'use client'
 ## Plotly.js TypeScript: Layout.title and LayoutAxis.title must be objects
 
 In `@types/plotly.js`, `Layout.title` is `Partial<{text: string; font: ...}>`, not `string`. Similarly, `LayoutAxis.title` expects `Partial<DataTitle>` (object with `text` field), not a bare string. And `LayoutAxis` has no `titlefont` property — use `title: { text, font }` instead. This differs from the Python Plotly API where string assignment is fine.
+
+## PlotlyChart wrapper only merges xaxis/yaxis — xaxis2/yaxis2 need manual dark theme
+
+The `PlotlyChart` wrapper in `frontend/components/charts/PlotlyChart.tsx` deep-merges `PLOTLY_DARK_TEMPLATE` styles into `xaxis` and `yaxis` only. For Plotly multi-axis layouts (subplots via `xaxis2`/`yaxis2`), you must manually copy the dark theme axis styles (`gridcolor`, `zerolinecolor`, `tickfont`, `title.font`) to `xaxis2`/`yaxis2`. Without this, second subplot axes render with Plotly defaults (white background appearance).
+
+## TypeScript TS2783: spread order matters for duplicate properties
+
+When spreading a style object that contains `title` and then explicitly setting `title`, TypeScript raises TS2783 "specified more than once". Fix: put the spread **before** explicit overrides, not after. `{ ...DARK_AXIS_STYLE, title: { text: 'Time' } }` not `{ title: { text: 'Time' }, ...DARK_AXIS_STYLE }`.

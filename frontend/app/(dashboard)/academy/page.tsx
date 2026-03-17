@@ -5,6 +5,7 @@ import { Container, Stack, Text, Title } from '@mantine/core';
 import { AcademyStepper } from '@/components/academy/AcademyStepper';
 import { StepPairSelector } from '@/components/academy/StepPairSelector';
 import { StepPriceComparison } from '@/components/academy/StepPriceComparison';
+import { StepCorrelationVsCointegration } from '@/components/academy/StepCorrelationVsCointegration';
 import { usePairContext } from '@/contexts/PairContext';
 import {
   fetchOHLCV,
@@ -137,9 +138,12 @@ export default function AcademyPage() {
         );
       case 2:
         return (
-          <Text c="dimmed" ta="center" py="xl">
-            Step 3: Correlation vs Cointegration — coming in T04
-          </Text>
+          <StepCorrelationVsCointegration
+            cointegrationData={cointData}
+            loading={cointLoading}
+            asset1={asset1}
+            asset2={asset2}
+          />
         );
       default:
         return (
