@@ -80,6 +80,12 @@ Build the Step 1 content component (static pair selection guidance with curated 
 - `frontend/lib/api.ts` — `postCointegration()` function and `CointegrationResponse` interface (extended in T01)
 - `src/statistical_arbitrage/app/pages/learn.py` — lines 300-418 for step 1 content (pair cards, timeframe guidance, learning roadmap text). Lines 144-195 for educational panel placeholder text.
 
+## Observability Impact
+
+- **New signals:** Academy page cointegration fetch emits `console.error` via `apiFetch` on API failure (URL + status). Cache key mismatch triggers re-fetch visible in Network tab as `POST /api/analysis/cointegration`.
+- **Inspection:** Navigate to `/academy` → stepper renders 6 steps → step 0 shows pair cards → clicking card updates header selects (PairContext). Browser Network tab shows API call when pair is selected. `npm run build` exit code confirms SSR safety.
+- **Failure visibility:** If PairContext is empty, step 1 shows static content (no error). If API fetch fails, `console.error` fires with URL and status. Cache ref stays null until successful fetch. Placeholder steps show "coming in T03/T04/S04" text — absence of these indicates dispatch failure.
+
 ## Expected Output
 
 - `frontend/components/academy/StepPairSelector.tsx` — new file with static step 1 content, pair cards wired to PairContext

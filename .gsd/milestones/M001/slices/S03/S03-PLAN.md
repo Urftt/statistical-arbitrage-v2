@@ -59,7 +59,7 @@
   - Verify: `cd frontend && npx tsc --noEmit` passes with zero errors; `npm run build` exits 0
   - Done when: CointegrationResponse has all fields from the API; AcademyStepper renders 6 steps; EducationalPanel renders 3 expandable sections
 
-- [ ] **T02: Build Step 1 (StepPairSelector) and wire Academy page** `est:30m`
+- [x] **T02: Build Step 1 (StepPairSelector) and wire Academy page** `est:30m`
   - Why: Step 1 is static content (no API calls) — the cheapest way to validate the stepper→step dispatch architecture. The Academy page must be rewritten from its placeholder to wire the stepper, step state, and step rendering. Building them together proves the component architecture works end-to-end.
   - Files: `frontend/components/academy/StepPairSelector.tsx`, `frontend/app/(dashboard)/academy/page.tsx`
   - Do: (1) Build `StepPairSelector` with: intro text, 3 curated pair cards (BTC×ETH green "Cointegrated", SOL×AVAX blue "Try it", BTC×DOGE orange "Likely fails") as clickable Paper components that call `setAsset1`/`setAsset2` from PairContext, timeframe guidance grid (15m/1h/4h/1d), learning roadmap list, and EducationalPanel. (2) Rewrite `academy/page.tsx`: manage `activeStep` as local useState(0), render AcademyStepper at top, dispatch to step components based on activeStep (step 0→StepPairSelector, steps 1-2→placeholder for now). Cache cointegration results in useRef keyed by `${asset1}-${asset2}-${timeframe}` to avoid re-fetching when navigating between steps.
