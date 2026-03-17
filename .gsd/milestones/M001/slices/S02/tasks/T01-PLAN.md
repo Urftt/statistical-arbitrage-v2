@@ -98,3 +98,11 @@ Create the `frontend/` directory with a Next.js App Router project, install Mant
 - `frontend/app/layout.tsx` — root layout with MantineProvider dark theme
 - `frontend/lib/theme.ts` — Mantine theme object + PLOTLY_DARK_TEMPLATE constant
 - `frontend/app/page.tsx` — minimal placeholder proving dark theme renders
+
+## Observability Impact
+
+- **Build canary:** `cd frontend && npm run build` — primary signal that the Next.js + Mantine integration is healthy. Non-zero exit = broken foundation for all downstream tasks.
+- **Dev server:** `npm run dev` at localhost:3000 — visual confirmation of dark theme. A white/light flash on load indicates missing `ColorSchemeScript`.
+- **Browser console:** Hydration warnings in the console indicate Mantine SSR misconfiguration (e.g. missing `mantineHtmlProps` on `<html>`).
+- **Theme constant:** `lib/theme.ts` exports `PLOTLY_DARK_TEMPLATE` — downstream PlotlyChart wrapper (T04) will fail to compile if this export is missing or mis-typed.
+- **Failure shapes:** Missing `@mantine/core/styles.css` → unstyled components; missing `MantineProvider` → runtime error "useMantineTheme must be used within MantineProvider".

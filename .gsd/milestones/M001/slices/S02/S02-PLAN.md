@@ -48,7 +48,7 @@
 
 ## Tasks
 
-- [ ] **T01: Scaffold Next.js project with Mantine dark theme** `est:45m`
+- [x] **T01: Scaffold Next.js project with Mantine dark theme** `est:45m`
   - Why: Foundation for the entire frontend. Nothing else can start until the project exists with Mantine configured and `npm run build` passing.
   - Files: `frontend/package.json`, `frontend/next.config.ts`, `frontend/app/layout.tsx`, `frontend/lib/theme.ts`, `frontend/tsconfig.json`
   - Do: Run `npx create-next-app@latest frontend` (App Router, TypeScript, ESLint — decline Tailwind, decline `src/` dir). Install Mantine + deps. Create root layout with `MantineProvider` (dark scheme), `ColorSchemeScript`, and CSS import. Create `lib/theme.ts` with Mantine theme object and `PLOTLY_DARK_TEMPLATE` constant ported from Dash. Configure `next.config.ts` with `optimizePackageImports` for Mantine tree-shaking.

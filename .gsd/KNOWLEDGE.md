@@ -25,3 +25,7 @@ FastAPI `on_event("startup")` is deprecated in recent versions. Use `@asyncconte
 ## numpy_to_python must handle both numpy AND native Python floats
 
 The converter checks `isinstance(obj, (np.floating, float))` to catch both `np.float64` and native Python `float('inf')`/`float('nan')`. `calculate_half_life()` returns `np.inf` (np.floating subclass) but after conversion via `.tolist()`, numpy scalars may become native Python floats that still need inf/nan checking.
+
+## create-next-app interactive prompts block in CI/agent contexts
+
+`npx create-next-app@latest` v16+ prompts for "React Compiler" even with all flags. Pipe `echo "N"` to accept defaults: `echo "N" | npx create-next-app@latest frontend --typescript --eslint --app --no-tailwind --no-src-dir --import-alias "@/*" --use-npm`. Without this, the process hangs waiting for stdin.
