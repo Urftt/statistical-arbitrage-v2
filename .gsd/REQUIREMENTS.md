@@ -8,35 +8,35 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 ### R001 — Academy teaches stat arb with 6 structured steps using real pair data
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: The Academy walks the user through statistical arbitrage in 6 steps: pair selection → price comparison → correlation vs cointegration → cointegration test → spread → z-score & signals. Each step uses the user's actual pair data, not synthetic examples.
 - Why it matters: This is how the user learns the domain — the prerequisite for everything else. Real data makes concepts concrete and memorable.
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04
-- Validation: S03: Steps 1-3 working with real data and stepper infrastructure. Steps 4-6 needed (S04) for full validation.
+- Validation: S03: Steps 1-3 working with real data and stepper infrastructure. S04: Steps 4-6 complete with real data, interactive charts, and educational panels. Full 6-step flow verified end-to-end with BTC/ETH pair.
 - Notes: The 6 steps match the existing Dash implementation. Content is right, execution needs polish.
 
 ### R002 — Three-layer educational panels (Intuition → How It Works → Your Pair)
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Each Academy step provides content at three depths: 💡 Intuition (analogy/everyday explanation), 🔧 How It Works (formula, mechanics, the actual math), 📊 Your Pair (what the numbers mean for the selected pair).
 - Why it matters: Different learning depths for different moments. The user should never feel like the math is hidden — but shouldn't be forced to see it all at once either.
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04
-- Validation: unmapped
+- Validation: All 6 Academy steps have 3-layer EducationalPanel with populated content. Steps 1-3 proven in S03, steps 4-6 proven in S04. Accordion expand/collapse works on all steps.
 - Notes: Accordion-based panels in the existing Dash app. Rebuild with React components.
 
 ### R003 — Interactive charts with live parameter sliders in Academy
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Academy steps 5-6 (spread and z-score) have parameter sliders that update charts in real-time — lookback window, entry/exit thresholds, etc.
 - Why it matters: Interactive parameter exploration is how the user builds intuition for what parameter values actually mean.
 - Source: user
 - Primary owning slice: M001/S04
 - Supporting slices: none
-- Validation: unmapped
+- Validation: Step 5 rolling window slider (10-200) updates spread chart with σ bands. Step 6 has 3 sliders (entry/exit/stop) updating z-score chart zones, signal markers, and summary counts. Zero API calls on slider change — all client-side. Verified via browser network tab.
 - Notes: Existing Dash implementation has this but with callback jank. React state management should make this smoother.
 
 ### R004 — React frontend with full UX control (replaces Dash)
@@ -245,7 +245,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04, M002/S01, M002/S02
-- Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. Visibility pattern established. Full validation requires S04 (steps 4-6) and M002 (research/backtest transparency).
+- Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency).
 - Notes: Applies to every pillar. This is what "transparent + honest" means in practice.
 
 ### R023 — Data quality validation before backtesting (missing candles, gaps)
@@ -261,7 +261,14 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 ## Validated
 
-(none yet)
+### R001 — Academy teaches stat arb with 6 structured steps using real pair data
+- Validated by: S03 (steps 1-3) + S04 (steps 4-6). Full 6-step flow verified end-to-end with BTC/ETH pair.
+
+### R002 — Three-layer educational panels (Intuition → How It Works → Your Pair)
+- Validated by: S03 (steps 1-3) + S04 (steps 4-6). All 6 steps have 3-layer EducationalPanel with populated content.
+
+### R003 — Interactive charts with live parameter sliders in Academy
+- Validated by: S04. Step 5 rolling window slider, Step 6 entry/exit/stop sliders. Zero API calls on interaction.
 
 ## Deferred
 
@@ -326,9 +333,9 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | primary-user-loop | active | M001/S03 | M001/S04 | S03: steps 1-3 proven |
-| R002 | primary-user-loop | active | M001/S03 | M001/S04 | S03: 3-layer panels on steps 1-3 |
-| R003 | primary-user-loop | active | M001/S04 | none | unmapped |
+| R001 | primary-user-loop | validated | M001/S03 | M001/S04 | S03+S04: all 6 steps proven |
+| R002 | primary-user-loop | validated | M001/S03 | M001/S04 | S03+S04: 3-layer panels on all 6 steps |
+| R003 | primary-user-loop | validated | M001/S04 | none | S04: sliders + zero API calls proven |
 | R004 | core-capability | active | M001/S02 | M001/S03-S06 | unmapped |
 | R005 | core-capability | active | M001/S01 | none | unmapped |
 | R006 | primary-user-loop | active | M001/S02 | M001/S03, S05 | unmapped |
@@ -347,7 +354,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 | R019 | core-capability | active | M004/S01 | none | unmapped |
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
-| R022 | quality-attribute | active | M001/S03 | M001/S04, M002 | S03: visibility in steps 1-3 |
+| R022 | quality-attribute | active | M001/S03 | M001/S04, M002 | S03+S04: Academy visibility complete |
 | R023 | failure-visibility | active | M002/S02 | none | unmapped |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
@@ -357,7 +364,7 @@ Use it to track what is actively in scope, what has been validated by completed 
 
 ## Coverage Summary
 
-- Active requirements: 23
-- Mapped to slices: 23
-- Validated: 0
+- Active requirements: 20
+- Mapped to slices: 20
+- Validated: 3
 - Unmapped active requirements: 0

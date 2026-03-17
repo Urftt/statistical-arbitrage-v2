@@ -63,7 +63,7 @@ This milestone is complete only when all are true:
 - [x] **S03: Academy Step Engine + First 3 Steps** `risk:medium` `depends:[S01,S02]`
   > After this: Academy page has a working stepper; steps 1-3 (pair selection, price comparison, correlation vs cointegration) render with real data, interactive charts, and educational panels.
 
-- [ ] **S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)** `risk:medium` `depends:[S03]`
+- [x] **S04: Academy Steps 4-6 (Cointegration → Z-Score & Signals)** `risk:medium` `depends:[S03]`
   > After this: all 6 Academy steps work end-to-end — steps 4-6 include cointegration test results, spread visualization, and z-score with live parameter sliders.
 
 - [ ] **S05: Pair Scanner + Deep Dive Pages** `risk:low` `depends:[S01,S02]`
