@@ -1,10 +1,22 @@
-"""Pydantic v2 response models for the Statistical Arbitrage API."""
+"""Pydantic v2 request/response models for the Statistical Arbitrage API."""
 
 import math
 from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, Field
+
+from statistical_arbitrage.backtesting.engine import default_strategy_parameters
+from statistical_arbitrage.backtesting.models import (
+    DataQualityReport as EngineDataQualityReport,
+    EngineWarning as EngineWarningModel,
+    EquityPoint as EquityPointModel,
+    HonestReportingFooter as HonestReportingFooterModel,
+    MetricSummary as MetricSummaryModel,
+    SignalEvent as SignalEventModel,
+    StrategyParameters as StrategyParametersModel,
+    TradeLedgerRow as TradeLedgerRowModel,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -36,6 +48,11 @@ def numpy_to_python(obj: Any) -> Any:
     if isinstance(obj, np.str_):
         return str(obj)
     return obj
+
+
+# ---------------------------------------------------------------------------
+# Existing general API models
+# ---------------------------------------------------------------------------
 
 
 class HealthResponse(BaseModel):
@@ -195,3 +212,171 @@ class StationarityResponse(BaseModel):
     critical_values: CriticalValues
     is_stationary: bool = Field(description="Whether the series is stationary (p < 0.05)")
     interpretation: str = Field(description="Human-readable interpretation")
+
+
+# ---------------------------------------------------------------------------
+# Research + backtest contract models
+# ---------------------------------------------------------------------------
+
+
+def _default_strategy_payload() -> "StrategyParametersPayload":
+    defaults = default_strategy_parameters()
+    return StrategyParametersPayload(**defaults.model_dump())
+
+
+class StrategyParametersPayload(StrategyParametersModel):
+    """Backtest strategy and accounting parameters exposed over the API."""
+
+
+class EngineWarningPayload(EngineWarningModel):
+    """Structured warning or blocker surfaced in API responses."""
+
+
+class DataQualityReportPayload(EngineDataQualityReport):
+    """Structured preflight data-quality output returned by the API."""
+
+
+class HonestReportingFooterPayload(HonestReportingFooterModel):
+    """Execution assumptions and limitations the UI must display honestly."""
+
+
+class SignalOverlayPointPayload(SignalEventModel):
+    """Signal overlay event with both signal and execution timestamps."""
+
+
+class TradeLogEntryPayload(TradeLedgerRowModel):
+    """One fee-aware round-trip trade in the backtest trade log."""
+
+
+class EquityCurvePointPayload(EquityPointModel):
+    """One equity curve point for charting and diagnostics."""
+
+
+class MetricSummaryPayload(MetricSummaryModel):
+    """Backtest performance summary returned to the frontend."""
+
+
+class BacktestRequest(BaseModel):
+    """Request to execute a backtest on cached parquet data."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(
+        default=365,
+        ge=1,
+        le=3650,
+        description="Maximum days of cached history to include in the run",
+    )
+    strategy: StrategyParametersPayload = Field(
+        default_factory=_default_strategy_payload,
+        description="Pure backtest and accounting parameters",
+    )
+
+
+class SpreadSummaryPayload(BaseModel):
+    """Spread summary stats used alongside backtest charts."""
+
+    mean: float | None = Field(default=None, description="Mean spread across usable bars")
+    std: float | None = Field(default=None, description="Sample standard deviation of the spread")
+
+
+class BacktestResponse(BaseModel):
+    """Stable API contract for executing a look-ahead-safe backtest."""
+
+    status: Literal["ok", "blocked"] = Field(description="Backtest execution status")
+    request: BacktestRequest
+    data_quality: DataQualityReportPayload = Field(
+        description="Structured preflight status, blockers, and warnings",
+    )
+    warnings: list[EngineWarningPayload] = Field(
+        default_factory=list,
+        description="Runtime and confidence warnings that the UI should surface inline",
+    )
+    footer: HonestReportingFooterPayload = Field(
+        description="Honest-reporting metadata for assumptions and limitations",
+    )
+    signal_overlay: list[SignalOverlayPointPayload] = Field(
+        default_factory=list,
+        description="Signals observed at one bar and executed on the next bar",
+    )
+    trade_log: list[TradeLogEntryPayload] = Field(
+        default_factory=list,
+        description="Fee-aware round-trip trade ledger",
+    )
+    equity_curve: list[EquityCurvePointPayload] = Field(
+        default_factory=list,
+        description="Full equity curve for charting and diagnostics",
+    )
+    metrics: MetricSummaryPayload
+    spread_summary: SpreadSummaryPayload = Field(
+        default_factory=SpreadSummaryPayload,
+        description="Backtest spread summary statistics",
+    )
+
+
+class ResearchTakeawayPayload(BaseModel):
+    """One-line research takeaway with UI severity styling."""
+
+    text: str = Field(description="Human-readable recommendation or interpretation")
+    severity: Literal["green", "yellow", "red"] = Field(
+        description="Suggested UI severity color for the takeaway",
+    )
+
+
+class LookbackWindowResultPayload(BaseModel):
+    """One candidate z-score lookback window from the sweep."""
+
+    window: int = Field(ge=2, description="Rolling window size in bars")
+    crossings_2: int = Field(
+        ge=0,
+        description="Number of times the z-score crosses the ±2 threshold",
+    )
+    autocorrelation: float = Field(description="Lag-1 autocorrelation of the z-score")
+    skewness: float = Field(description="Z-score skewness")
+    kurtosis: float = Field(description="Z-score kurtosis")
+    zscore_std: float = Field(description="Standard deviation of the z-score")
+
+
+class LookbackSweepRequest(BaseModel):
+    """Request for the first research-to-backtest handoff module."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(
+        default=365,
+        ge=1,
+        le=3650,
+        description="Maximum days of cached history to analyze",
+    )
+    windows: list[int] | None = Field(
+        default=None,
+        description="Optional explicit list of candidate rolling lookback windows",
+    )
+
+
+class LookbackSweepResponse(BaseModel):
+    """Research module response plus a compatible recommended backtest preset."""
+
+    module: Literal["lookback_window"] = Field(
+        default="lookback_window",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of overlapping observations analyzed")
+    hedge_ratio: float = Field(description="Full-sample OLS hedge ratio used to build the spread")
+    results: list[LookbackWindowResultPayload] = Field(
+        default_factory=list,
+        description="All tested lookback windows and their signal-quality diagnostics",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_result: LookbackWindowResultPayload = Field(
+        description="The best lookback candidate chosen for the backtest preset",
+    )
+    recommended_backtest_params: BacktestRequest = Field(
+        description="A fully valid backtest request that can be posted directly to /api/backtest",
+    )

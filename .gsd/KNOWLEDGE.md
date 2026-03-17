@@ -69,3 +69,7 @@ The FastAPI backend returns `timestamps: number[]` in the `CointegrationResponse
 ## `postCointegration()` always returns z-score with window=60
 
 `POST /api/analysis/cointegration` hardcodes `PairAnalysis.calculate_zscore(window=60)` in `api/routers/analysis.py`, so the returned `CointegrationResponse.zscore` does **not** respect any frontend lookback control. If a page lets the user change z-score window (e.g. Deep Dive), either recompute z-score client-side from `spread` using the selected window or call the dedicated `/api/analysis/zscore` endpoint. Do not assume `postCointegration()` is enough for configurable z-score views.
+
+## Mantine `Select` needs an explicit option commit in browser automation
+
+In this frontend, typing into a Mantine `Select` textbox updates the visible input value but does **not** update the paired hidden input that drives the real form state. For browser verification, commit the selection with `ArrowDown` + `Enter` (or click an option) and verify the hidden input changed. If the page still shows the "Select asset 1, asset 2..." empty state after typing, the selection was never committed.

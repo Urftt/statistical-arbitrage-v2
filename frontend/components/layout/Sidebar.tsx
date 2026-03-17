@@ -2,24 +2,42 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Box, Divider, NavLink, Stack, Text } from '@mantine/core';
 import {
-  Box,
-  Divider,
-  NavLink,
-  Stack,
-  Text,
-} from '@mantine/core';
-import {
-  IconSearch,
+  IconChartHistogram,
+  IconChartLine,
   IconMicroscope,
   IconSchool,
+  IconSearch,
   IconVocabulary,
 } from '@tabler/icons-react';
 
-/** Sidebar navigation items matching the Dash app layout. */
+/** Sidebar navigation items matching the Dash app layout plus M002 flows. */
 const NAV_ITEMS = [
-  { label: 'Pair Scanner', href: '/scanner', icon: IconSearch },
-  { label: 'Pair Deep Dive', href: '/deep-dive', icon: IconMicroscope },
+  {
+    label: 'Pair Scanner',
+    href: '/scanner',
+    icon: IconSearch,
+    description: 'Batch cointegration scan',
+  },
+  {
+    label: 'Pair Deep Dive',
+    href: '/deep-dive',
+    icon: IconMicroscope,
+    description: 'Single pair analysis',
+  },
+  {
+    label: 'Research',
+    href: '/research',
+    icon: IconChartHistogram,
+    description: 'Live module + handoff',
+  },
+  {
+    label: 'Backtest',
+    href: '/backtest',
+    icon: IconChartLine,
+    description: 'Real engine results',
+  },
 ] as const;
 
 const ACADEMY_ITEMS = [
@@ -48,6 +66,7 @@ export function Sidebar() {
           component={Link}
           href={item.href}
           label={item.label}
+          description={item.description}
           leftSection={<item.icon size={18} stroke={1.5} />}
           active={pathname === item.href}
           variant="light"
@@ -74,7 +93,7 @@ export function Sidebar() {
       <Divider my="xs" />
 
       <Text size="xs" c="dimmed" ta="center" py="xs">
-        StatArb Research v0.1
+        StatArb Research v0.2
       </Text>
     </Stack>
   );

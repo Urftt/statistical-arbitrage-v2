@@ -15,15 +15,44 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
+export const TIMEFRAME_OPTIONS = [
+  { label: '15 min', value: '15m' },
+  { label: '1 hour', value: '1h' },
+  { label: '4 hours', value: '4h' },
+  { label: '1 day', value: '1d' },
+] as const;
+
+export interface StrategyParametersPayload {
+  lookback_window: number;
+  entry_threshold: number;
+  exit_threshold: number;
+  stop_loss: number;
+  initial_capital: number;
+  position_size: number;
+  transaction_fee: number;
+  min_trade_count_warning: number;
+}
+
+export const DEFAULT_STRATEGY_PARAMETERS: StrategyParametersPayload = {
+  lookback_window: 60,
+  entry_threshold: 2,
+  exit_threshold: 0.5,
+  stop_loss: 3,
+  initial_capital: 10_000,
+  position_size: 0.5,
+  transaction_fee: 0.0025,
+  min_trade_count_warning: 3,
+};
+
 // ---------------------------------------------------------------------------
 // Interfaces — match FastAPI schemas (api/schemas.py)
 // ---------------------------------------------------------------------------
 
 export interface PairInfo {
-  symbol: string; // e.g. "ETH/EUR"
-  base: string; // e.g. "ETH"
-  quote: string; // e.g. "EUR"
-  timeframe: string; // e.g. "1h"
+  symbol: string;
+  base: string;
+  quote: string;
+  timeframe: string;
   candles: number;
   start: string;
   end: string;
@@ -97,9 +126,169 @@ export interface CointegrationResponse {
   timestamps: number[];
 }
 
+export interface BacktestRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  strategy: StrategyParametersPayload;
+}
+
+export interface EngineWarningPayload {
+  code: string;
+  severity: 'warning' | 'blocking';
+  message: string;
+  details: Record<string, number | string | boolean | null | undefined>;
+}
+
+export interface DataQualityReportPayload {
+  status: 'passed' | 'blocked';
+  observations_total: number;
+  observations_usable: number;
+  warmup_bars: number;
+  blockers: EngineWarningPayload[];
+  warnings: EngineWarningPayload[];
+}
+
+export interface HonestReportingFooterPayload {
+  execution_model: string;
+  fee_model: string;
+  data_basis: string;
+  assumptions: string[];
+  limitations: string[];
+}
+
+export interface SignalOverlayPointPayload {
+  signal_index: number;
+  execution_index: number;
+  signal_timestamp: string;
+  execution_timestamp: string;
+  signal_type:
+    | 'long_entry'
+    | 'short_entry'
+    | 'long_exit'
+    | 'short_exit'
+    | 'stop_loss';
+  direction: 'long_spread' | 'short_spread';
+  zscore_at_signal: number;
+  hedge_ratio_at_signal: number;
+}
+
+export interface TradeLogEntryPayload {
+  trade_id: number;
+  direction: 'long_spread' | 'short_spread';
+  entry_signal_index: number;
+  entry_execution_index: number;
+  exit_signal_index: number;
+  exit_execution_index: number;
+  entry_timestamp: string;
+  exit_timestamp: string;
+  entry_reason: 'long_entry' | 'short_entry';
+  exit_reason: 'long_exit' | 'short_exit' | 'stop_loss';
+  bars_held: number;
+  entry_zscore: number;
+  exit_zscore: number;
+  hedge_ratio: number;
+  quantity_asset1: number;
+  quantity_asset2: number;
+  entry_price_asset1: number;
+  entry_price_asset2: number;
+  exit_price_asset1: number;
+  exit_price_asset2: number;
+  allocated_capital: number;
+  gross_pnl: number;
+  total_fees: number;
+  net_pnl: number;
+  return_pct: number;
+  equity_after_trade: number;
+}
+
+export interface EquityCurvePointPayload {
+  index: number;
+  timestamp: string;
+  equity: number;
+  cash: number;
+  unrealized_pnl: number;
+  position: 'flat' | 'long_spread' | 'short_spread';
+}
+
+export interface MetricSummaryPayload {
+  total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  total_net_pnl: number;
+  total_return_pct: number;
+  average_trade_return_pct: number;
+  average_holding_period_bars: number;
+  max_drawdown_pct: number;
+  profit_factor: number | null;
+  sharpe_ratio: number | null;
+  sortino_ratio: number | null;
+  final_equity: number;
+}
+
+export interface SpreadSummaryPayload {
+  mean: number | null;
+  std: number | null;
+}
+
+export interface BacktestResponse {
+  status: 'ok' | 'blocked';
+  request: BacktestRequest;
+  data_quality: DataQualityReportPayload;
+  warnings: EngineWarningPayload[];
+  footer: HonestReportingFooterPayload;
+  signal_overlay: SignalOverlayPointPayload[];
+  trade_log: TradeLogEntryPayload[];
+  equity_curve: EquityCurvePointPayload[];
+  metrics: MetricSummaryPayload;
+  spread_summary: SpreadSummaryPayload;
+}
+
+export interface ResearchTakeawayPayload {
+  text: string;
+  severity: 'green' | 'yellow' | 'red';
+}
+
+export interface LookbackWindowResultPayload {
+  window: number;
+  crossings_2: number;
+  autocorrelation: number;
+  skewness: number;
+  kurtosis: number;
+  zscore_std: number;
+}
+
+export interface LookbackSweepRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  windows?: number[];
+}
+
+export interface LookbackSweepResponse {
+  module: 'lookback_window';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  hedge_ratio: number;
+  results: LookbackWindowResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_result: LookbackWindowResultPayload;
+  recommended_backtest_params: BacktestRequest;
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+interface ApiErrorPayload {
+  detail?: string;
+}
 
 /**
  * Convert a symbol like "ETH/EUR" to the dash-separated format "ETH-EUR"
@@ -107,6 +296,42 @@ export interface CointegrationResponse {
  */
 function symbolToDash(symbol: string): string {
   return symbol.replace('/', '-');
+}
+
+/** Return a stable EUR-pair symbol from a base asset name. */
+export function toEurSymbol(asset: string): string {
+  return asset.includes('/') ? asset : `${asset}/EUR`;
+}
+
+/** Reduce a pair symbol like "ETH/EUR" to its base asset, e.g. "ETH". */
+export function symbolToBaseAsset(symbol: string): string {
+  return symbol.split('/')[0] ?? symbol;
+}
+
+/**
+ * Convert a complete backtest preset into explicit URL params so the handoff
+ * is shareable, inspectable, and survives refreshes.
+ */
+export function buildBacktestSearchParams(
+  request: BacktestRequest
+): URLSearchParams {
+  const params = new URLSearchParams();
+  params.set('asset1', request.asset1);
+  params.set('asset2', request.asset2);
+  params.set('timeframe', request.timeframe);
+  params.set('days_back', String(request.days_back));
+  params.set('lookback_window', String(request.strategy.lookback_window));
+  params.set('entry_threshold', String(request.strategy.entry_threshold));
+  params.set('exit_threshold', String(request.strategy.exit_threshold));
+  params.set('stop_loss', String(request.strategy.stop_loss));
+  params.set('initial_capital', String(request.strategy.initial_capital));
+  params.set('position_size', String(request.strategy.position_size));
+  params.set('transaction_fee', String(request.strategy.transaction_fee));
+  params.set(
+    'min_trade_count_warning',
+    String(request.strategy.min_trade_count_warning)
+  );
+  return params;
 }
 
 /**
@@ -127,7 +352,17 @@ async function apiFetch<T>(
   }
 
   if (!response.ok) {
-    const message = `API error: ${response.status} ${response.statusText} — ${url}`;
+    let detail = '';
+    try {
+      const payload = (await response.json()) as ApiErrorPayload;
+      if (payload.detail) {
+        detail = ` — ${payload.detail}`;
+      }
+    } catch {
+      // Ignore JSON parse failures and fall back to status text.
+    }
+
+    const message = `API error: ${response.status} ${response.statusText} — ${url}${detail}`;
     console.error(message);
     throw new Error(message);
   }
@@ -139,17 +374,13 @@ async function apiFetch<T>(
 // API Functions
 // ---------------------------------------------------------------------------
 
-/**
- * Fetch the list of all cached pairs from the backend.
- * GET /api/pairs
- */
+/** Fetch the list of all cached pairs from the backend. */
 export async function fetchPairs(): Promise<PairsListResponse> {
   return apiFetch<PairsListResponse>(`${API_BASE_URL}/api/pairs`);
 }
 
 /**
  * Fetch OHLCV candle data for a specific pair and timeframe.
- * GET /api/pairs/{symbol}/ohlcv?timeframe={tf}[&days_back=N]
  *
  * @param symbol - Pair symbol, e.g. "ETH/EUR"
  * @param timeframe - Candle timeframe, e.g. "1h"
@@ -171,10 +402,7 @@ export async function fetchOHLCV(
   );
 }
 
-/**
- * Run a cointegration analysis between two assets.
- * POST /api/analysis/cointegration
- */
+/** Run a cointegration analysis between two assets. */
 export async function postCointegration(
   req: CointegrationRequest
 ): Promise<CointegrationResponse> {
@@ -186,4 +414,29 @@ export async function postCointegration(
       body: JSON.stringify(req),
     }
   );
+}
+
+/** Run the live research module for the lookback-window sweep. */
+export async function postLookbackSweep(
+  req: LookbackSweepRequest
+): Promise<LookbackSweepResponse> {
+  return apiFetch<LookbackSweepResponse>(
+    `${API_BASE_URL}/api/research/lookback-window`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Execute the live look-ahead-safe backtest against cached data. */
+export async function postBacktest(
+  req: BacktestRequest
+): Promise<BacktestResponse> {
+  return apiFetch<BacktestResponse>(`${API_BASE_URL}/api/backtest`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
 }
