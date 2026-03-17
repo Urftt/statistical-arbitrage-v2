@@ -29,3 +29,11 @@ The converter checks `isinstance(obj, (np.floating, float))` to catch both `np.f
 ## create-next-app interactive prompts block in CI/agent contexts
 
 `npx create-next-app@latest` v16+ prompts for "React Compiler" even with all flags. Pipe `echo "N"` to accept defaults: `echo "N" | npx create-next-app@latest frontend --typescript --eslint --app --no-tailwind --no-src-dir --import-alias "@/*" --use-npm`. Without this, the process hangs waiting for stdin.
+
+## Plotly `as const` template vs mutable Layout type
+
+`PLOTLY_DARK_TEMPLATE` uses `as const` for type safety, but `Plotly.Layout.colorway` expects `string[]` (mutable). The readonly tuple from `as const` is not assignable. Fix: spread into a new array `[...tpl.colorway]`. Same pattern applies to any readonly array from a const object passed to Plotly types.
+
+## plotly.js SSR: `'use client'` is NOT enough
+
+plotly.js accesses `window`/`document` at import time. In Next.js, `'use client'` components are still server-rendered for initial HTML. You MUST use `next/dynamic` with `{ ssr: false }` in addition to the `'use client'` directive. Build (`npm run build`) is the definitive test — it does full SSR and will crash with "window is not defined" if the dynamic import is missing.

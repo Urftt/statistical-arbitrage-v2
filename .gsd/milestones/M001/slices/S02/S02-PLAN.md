@@ -69,7 +69,7 @@
   - Verify: With FastAPI running at localhost:8000, header selects show real coin names; selecting a pair updates context (verify by showing selected pair on a placeholder page or via console log); `npm run build` succeeds
   - Done when: Pair selects populate from API, selection state persists across page navigation via context
 
-- [ ] **T04: Create PlotlyChart wrapper with ported dark theme** `est:30m`
+- [x] **T04: Create PlotlyChart wrapper with ported dark theme** `est:30m`
   - Why: Closes R007 (Plotly charts via react-plotly.js with dark theme). Retires the "react-plotly.js in Next.js SSR" risk. Produces the `<PlotlyChart>` component all downstream slices use.
   - Files: `frontend/components/charts/PlotlyChart.tsx`, `frontend/app/(dashboard)/academy/page.tsx`
   - Do: Create `PlotlyChart.tsx` as `'use client'` component. Use `next/dynamic` to import `react-plotly.js` with `{ ssr: false }`. Component accepts `data`, `layout`, and optional `config` props (standard Plotly types). Merges the `PLOTLY_DARK_TEMPLATE` from `lib/theme.ts` into the layout (paper_bgcolor, plot_bgcolor, font, axis styling, colorway, margins). Shows a loading skeleton via Mantine `<Skeleton>` while Plotly loads. Add a demo chart to the Academy placeholder page: a simple line chart with 2 traces using mock data, proving the component renders with the dark theme. Install `react-plotly.js` and `plotly.js` as dependencies (and `@types/react-plotly.js` if available).

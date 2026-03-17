@@ -120,6 +120,13 @@ Create a reusable `<PlotlyChart>` client component that wraps `react-plotly.js` 
 - `frontend/app/(dashboard)/academy/page.tsx` from T02 — placeholder to add chart to
 - `frontend/package.json` from T01/T02 — add plotly dependencies
 
+## Observability Impact
+
+- **New signal:** Plotly chart render on `/academy` — visible in browser, proves `react-plotly.js` works with SSR-safe dynamic import
+- **Inspection surface:** `npm run build` output — if future changes break SSR safety, build fails with "window is not defined"
+- **Failure shape:** Missing `ssr: false` → build crash; missing `PLOTLY_DARK_TEMPLATE` import → chart renders with default white Plotly theme; `plotly.js` version mismatch → runtime error in browser console
+- **Browser console:** No hydration warnings or "window is not defined" errors should appear; Plotly-specific errors (if any) appear as red console errors
+
 ## Expected Output
 
 - `frontend/components/charts/PlotlyChart.tsx` — reusable SSR-safe Plotly wrapper with dark theme
