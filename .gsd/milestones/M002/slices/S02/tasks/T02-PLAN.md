@@ -168,6 +168,14 @@ Each panel follows the `LookbackSweepPanel.tsx` pattern: receive `{asset1, asset
 - T01 output: 7 new API endpoints serving data at `/api/research/*`
 - KNOWLEDGE.md Plotly TypeScript gotchas (axis title objects, `as Data` casts, spread order, `ssr: false`)
 
+## Observability Impact
+
+- **Browser console**: Each panel logs fetch failures to `console.error` with the module name and URL, consistent with the `apiFetch` wrapper pattern. No new console instrumentation needed.
+- **Network tab**: POST requests to `/api/research/{slug}` are visible with JSON payloads and typed responses. 4xx/5xx failures include `detail` in the response body.
+- **Tab rendering**: The Mantine `Tabs` component uses `data-research-module` attributes on each `Tabs.Panel` for E2E testability. The E2E test gates on tab labels and panel content switching.
+- **Failure states**: Each panel renders an explicit red `Alert` with the error message on fetch failure, making failures visible without opening dev tools.
+- **Lazy loading**: `next/dynamic` loading skeletons appear during chunk fetch, proving the lazy boundary works. If SSR breaks, `npm run build` catches it.
+
 ## Expected Output
 
 - `frontend/lib/api.ts` — extended with 7 new interface sets and fetch functions

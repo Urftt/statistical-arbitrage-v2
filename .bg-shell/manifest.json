@@ -1,14 +1,1 @@
-[
-  {
-    "id": "1bd264ac",
-    "label": "fastapi-api",
-    "command": "uv run python run_api.py",
-    "cwd": "/Users/luckleineschaars/repos/statistical-arbitrage-v2/.gsd/worktrees/M002",
-    "startedAt": 1773781808115,
-    "processType": "server",
-    "group": "m002-ui",
-    "readyPattern": null,
-    "readyPort": 8000,
-    "pid": 48307
-  }
-]
+[]

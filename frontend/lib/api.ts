@@ -283,6 +283,244 @@ export interface LookbackSweepResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Rolling Stability research module
+// ---------------------------------------------------------------------------
+
+export interface RollingStabilityRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  window?: number;
+}
+
+export interface RollingStabilityResultPayload {
+  timestamp: number;
+  p_value: number | null;
+  is_cointegrated: boolean;
+  hedge_ratio: number | null;
+  test_statistic: number | null;
+}
+
+export interface RollingStabilityResponse {
+  module: 'rolling_stability';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: RollingStabilityResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Out-of-Sample Validation research module
+// ---------------------------------------------------------------------------
+
+export interface OOSValidationRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  split_ratios?: number[];
+}
+
+export interface OOSResultPayload {
+  formation_p_value: number;
+  formation_cointegrated: boolean;
+  formation_hedge_ratio: number;
+  trading_p_value: number;
+  trading_cointegrated: boolean;
+  trading_hedge_ratio: number;
+  formation_adf_stat: number;
+  trading_adf_stat: number;
+  formation_n: number;
+  trading_n: number;
+  split_ratio: number;
+}
+
+export interface OOSValidationResponse {
+  module: 'oos_validation';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: OOSResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Timeframe Comparison research module
+// ---------------------------------------------------------------------------
+
+export interface TimeframeRequest {
+  asset1: string;
+  asset2: string;
+  days_back: number;
+  timeframes?: string[];
+}
+
+export interface TimeframeResultPayload {
+  timeframe: string;
+  p_value: number | null;
+  is_cointegrated: boolean;
+  hedge_ratio: number | null;
+  half_life: number | null;
+  n_datapoints: number;
+  adf_statistic: number | null;
+}
+
+export interface TimeframeResponse {
+  module: 'timeframe_comparison';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: TimeframeResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Spread Method Comparison research module
+// ---------------------------------------------------------------------------
+
+export interface SpreadMethodRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+}
+
+export interface SpreadMethodResultPayload {
+  method: string;
+  adf_statistic: number;
+  adf_p_value: number;
+  is_stationary: boolean;
+  spread_std: number;
+  spread_skewness: number;
+  spread_kurtosis: number;
+}
+
+export interface SpreadMethodResponse {
+  module: 'spread_method';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: SpreadMethodResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Z-score Threshold Sweep research module
+// ---------------------------------------------------------------------------
+
+export interface ZScoreThresholdRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  entry_range?: number[];
+  exit_range?: number[];
+  lookback_window?: number;
+}
+
+export interface ThresholdResultPayload {
+  entry: number;
+  exit: number;
+  total_trades: number;
+  avg_duration: number | null;
+  max_duration: number | null;
+}
+
+export interface ZScoreThresholdResponse {
+  module: 'zscore_threshold';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: ThresholdResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Transaction Cost Analysis research module
+// ---------------------------------------------------------------------------
+
+export interface TxCostRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  fee_levels?: number[];
+  entry_threshold?: number;
+  exit_threshold?: number;
+  lookback_window?: number;
+}
+
+export interface TxCostResultPayload {
+  fee_pct: number;
+  round_trip_pct: number;
+  total_trades: number;
+  profitable_trades: number;
+  avg_spread_pct: number;
+  min_profitable_spread_pct: number;
+  net_profitable_pct: number;
+}
+
+export interface TxCostResponse {
+  module: 'tx_cost';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: TxCostResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Cointegration Method Comparison research module
+// ---------------------------------------------------------------------------
+
+export interface CointMethodRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+}
+
+export interface CointMethodResultPayload {
+  method: string;
+  is_cointegrated: boolean;
+  detail: string;
+  statistic: number;
+  critical_value: number | null;
+}
+
+export interface CointMethodResponse {
+  module: 'coint_method';
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  observations: number;
+  results: CointMethodResultPayload[];
+  takeaway: ResearchTakeawayPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -439,4 +677,106 @@ export async function postBacktest(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Research module API functions
+// ---------------------------------------------------------------------------
+
+/** Run the rolling cointegration stability research module. */
+export async function postRollingStability(
+  req: RollingStabilityRequest
+): Promise<RollingStabilityResponse> {
+  return apiFetch<RollingStabilityResponse>(
+    `${API_BASE_URL}/api/research/rolling-stability`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the out-of-sample validation research module. */
+export async function postOOSValidation(
+  req: OOSValidationRequest
+): Promise<OOSValidationResponse> {
+  return apiFetch<OOSValidationResponse>(
+    `${API_BASE_URL}/api/research/oos-validation`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the timeframe comparison research module. */
+export async function postTimeframeComparison(
+  req: TimeframeRequest
+): Promise<TimeframeResponse> {
+  return apiFetch<TimeframeResponse>(
+    `${API_BASE_URL}/api/research/timeframe-comparison`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the spread method comparison research module. */
+export async function postSpreadMethodComparison(
+  req: SpreadMethodRequest
+): Promise<SpreadMethodResponse> {
+  return apiFetch<SpreadMethodResponse>(
+    `${API_BASE_URL}/api/research/spread-method`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the z-score threshold sweep research module. */
+export async function postZScoreThreshold(
+  req: ZScoreThresholdRequest
+): Promise<ZScoreThresholdResponse> {
+  return apiFetch<ZScoreThresholdResponse>(
+    `${API_BASE_URL}/api/research/zscore-threshold`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the transaction cost impact research module. */
+export async function postTxCost(
+  req: TxCostRequest
+): Promise<TxCostResponse> {
+  return apiFetch<TxCostResponse>(
+    `${API_BASE_URL}/api/research/tx-cost`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run the cointegration method comparison research module. */
+export async function postCointMethodComparison(
+  req: CointMethodRequest
+): Promise<CointMethodResponse> {
+  return apiFetch<CointMethodResponse>(
+    `${API_BASE_URL}/api/research/coint-method`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
 }
