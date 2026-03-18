@@ -28,6 +28,7 @@
 - `POST /api/optimization/grid-search` with a known pair returns metric matrix with correct dimensions, best cell, robustness annotation, and overfitting warnings
 - `POST /api/optimization/walk-forward` with a known pair returns per-fold train/test metrics, aggregate summary, and stability verdict
 - `POST /api/backtest` with parameters that yield suspiciously good metrics includes overfitting warning codes in `warnings`
+- `POST /api/backtest` with normal/healthy metrics returns empty overfitting warnings — verifies thresholds don't false-positive on reasonable results
 - `/optimize` page loads with two tabs; Grid Search tab shows controls and heatmap area; Walk-Forward tab shows fold config and results area
 
 ## Observability / Diagnostics
@@ -45,7 +46,7 @@
 
 ## Tasks
 
-- [ ] **T01: Build overfitting detector and wire into backtest engine** `est:1h`
+- [x] **T01: Build overfitting detector and wire into backtest engine** `est:1h`
   - Why: R012 is the safety net that prevents the platform from giving false confidence. Wiring it into `run_backtest()` means every backtest surface (including existing `/backtest` page and future grid-search/walk-forward) immediately benefits. This is the cheapest task with the most immediate safety value.
   - Files: `src/statistical_arbitrage/backtesting/overfitting.py`, `src/statistical_arbitrage/backtesting/models.py`, `src/statistical_arbitrage/backtesting/engine.py`, `tests/test_overfitting.py`, `frontend/components/backtest/BacktestResultView.tsx`
   - Do: (1) Create `backtesting/overfitting.py` with `detect_overfitting_warnings(metrics, trade_count, thresholds=None) → list[EngineWarning]` and `detect_fragility(cells, best_index, axes_sizes) → list[EngineWarning]`. Thresholds: Sharpe > 3, profit_factor > 5 with < 20 trades, win_rate > 0.85 with < 10 trades, max_drawdown < 0.01 with Sharpe > 2. (2) Add `OverfitWarningThresholds` model to `models.py`. (3) Call `detect_overfitting_warnings()` in `engine.py` after `build_post_run_warnings()` and append to the warnings list. (4) In `BacktestResultView.tsx`, add a distinct rendering section for overfitting-coded warnings (red/orange alert with a different icon). (5) Write `tests/test_overfitting.py` with cases for each threshold trigger and a healthy-metrics negative case.

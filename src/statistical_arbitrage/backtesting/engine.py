@@ -18,6 +18,7 @@ from statistical_arbitrage.backtesting.models import (
     StrategyParameters,
     TradeLedgerRow,
 )
+from statistical_arbitrage.backtesting.overfitting import detect_overfitting_warnings
 from statistical_arbitrage.backtesting.preflight import (
     build_post_run_warnings,
     run_preflight,
@@ -350,6 +351,12 @@ def run_backtest(
         equity_curve=equity_curve,
         initial_capital=resolved_params.initial_capital,
     )
+
+    # Screen for suspiciously good metrics (overfitting heuristics)
+    overfit_warnings = detect_overfitting_warnings(
+        metrics=metrics, trade_count=len(trades)
+    )
+    warnings.extend(overfit_warnings)
 
     return BacktestResult(
         status="ok",

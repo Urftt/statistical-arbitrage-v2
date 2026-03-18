@@ -135,6 +135,18 @@ class MetricSummary(BacktestModel):
     final_equity: float = Field(gt=0)
 
 
+class OverfitWarningThresholds(BacktestModel):
+    """Tunable thresholds for overfitting detection heuristics."""
+
+    sharpe_threshold: float = 3.0
+    profit_factor_threshold: float = 5.0
+    profit_factor_min_trades: int = 20
+    winrate_threshold: float = 0.85
+    winrate_min_trades: int = 10
+    smooth_equity_max_drawdown: float = 0.01
+    smooth_equity_min_sharpe: float = 2.0
+
+
 class BacktestResult(BacktestModel):
     """Top-level engine output for API and UI layers."""
 

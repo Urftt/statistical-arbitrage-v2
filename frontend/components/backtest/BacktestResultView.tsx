@@ -302,10 +302,39 @@ function WarningList({
 }) {
   if (items.length === 0) return null;
 
+  const overfitItems = items.filter((w) => w.code.startsWith('overfit_'));
+  const otherItems = items.filter((w) => !w.code.startsWith('overfit_'));
+
   return (
     <Stack gap="sm">
       <Text fw={700}>{title}</Text>
-      {items.map((warning) => {
+      {overfitItems.map((warning) => {
+        const details = renderWarningDetails(warning.details);
+        return (
+          <Alert
+            key={`${warning.code}-${warning.message}`}
+            color="orange"
+            variant="light"
+            radius="lg"
+            title="⚠️ Overfitting Signal"
+            icon={<IconAlertTriangle size={17} color="#ff922b" />}
+            styles={{
+              root: {
+                borderLeft: '3px solid var(--mantine-color-orange-6)',
+              },
+            }}
+          >
+            <Text size="sm" fw={600}>{titleCaseSignal(warning.code)}</Text>
+            <Text size="sm" mt={4}>{warning.message}</Text>
+            {details ? (
+              <Text size="xs" c="dimmed" mt={6}>
+                {details}
+              </Text>
+            ) : null}
+          </Alert>
+        );
+      })}
+      {otherItems.map((warning) => {
         const details = renderWarningDetails(warning.details);
         return (
           <Alert
