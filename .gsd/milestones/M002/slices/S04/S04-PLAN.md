@@ -42,7 +42,7 @@
   - Done when: ≥4 new integration flow tests pass alongside all 22 existing E2E tests, proving the connected research→backtest→optimize flows work live on real cached data
   - Skill: `test`
 
-- [ ] **T02: Final regression and M002 requirement closure** `est:20m`
+- [x] **T02: Final regression and M002 requirement closure** `est:20m`
   - Why: M002 can't close until requirement statuses reflect final integrated acceptance evidence. The E2E integration tests from T01 provide the proof that was deferred from S01–S03. Running full regression confirms no regressions from any bug fixes.
   - Files: `.gsd/REQUIREMENTS.md`, `.gsd/STATE.md`
   - Do: Run `uv run pytest tests/ -q` (expect 164 pass) and `cd frontend && npm run build` (expect clean) as final regression. Update R023 validation notes with final status. Update R008, R009, R010, R011, R012, R013, R014, R015, R022 validation notes to include S04 live integrated acceptance evidence. Write S04 summary.

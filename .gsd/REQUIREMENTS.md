@@ -67,7 +67,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: research
 - Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented.
+- Validation: S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented. S04: Existing preflight runs successfully in the live E2E backtest flow, confirming data-quality checks execute on real cached data.
 - Notes: S01 built preflight checking for nulls, non-finite values, impossible prices, short histories, and non-monotonic timestamps. Explicit regular-interval candle-gap detection still needed before closing. Gap detection should be addressed in S02 or S03.
 
 ## Validated
@@ -157,7 +157,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules: rolling stability, OOS validation, timeframe comparison, spread method, z-score threshold, transaction cost, and cointegration method. All 8 run from React against FastAPI, return structured ResearchTakeawayPayload results from cached data, and render takeaway banners. Z-score threshold and tx-cost hand off recommended parameters to the backtester. Proven by 8 contract tests, 4 E2E tests, and frontend build gate.
+- Validation: S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules: rolling stability, OOS validation, timeframe comparison, spread method, z-score threshold, transaction cost, and cointegration method. All 8 run from React against FastAPI, return structured ResearchTakeawayPayload results from cached data, and render takeaway banners. Z-score threshold and tx-cost hand off recommended parameters to the backtester. Proven by 8 contract tests, 4 E2E tests, and frontend build gate. S04: Full integrated acceptance — research modules run live on cached BTC+ETH data through real Next.js/FastAPI entrypoints, with E2E tests proving result rendering and takeaway banners.
 - Notes: S01 delivered lookback sweep. S02 delivered the remaining 7 modules. All 8 follow the shared envelope pattern with typed results, takeaway banners, and optional recommended_backtest_params.
 
 ### R009 — Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
@@ -168,7 +168,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting.
+- Validation: S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting. S04: Live backtest execution verified E2E on cached data — equity curve, trade log, and metrics render through the real entrypoints.
 - Notes: StrategySettings already defined in config/settings.py with lookback, thresholds, capital, fees.
 
 ### R010 — Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
@@ -179,7 +179,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view.
+- Validation: S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view. S04: Metrics rendering verified in live E2E backtest flow.
 - Notes: none
 
 ### R011 — The system can sweep parameters (z-score thresholds, lookback windows, etc.) across ranges and surface which combinations actually work on the user's data. Not just testing what the user asks — proactively showing what the data says.
@@ -190,7 +190,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S03
 - Supporting slices: none
-- Validation: S03: Grid search engine sweeps ≤3 parameter axes simultaneously with bounded ranges (max 500 combos), returns structured metric matrix with per-cell results, best cell, robustness score (neighbor analysis), and fragility warnings. Plotly heatmap renders the 2D parameter landscape. API at POST /api/optimization/grid-search. Proven by 10 unit tests, 4 API contract tests, 3 E2E tests, and frontend build gate.
+- Validation: S03: Grid search engine sweeps ≤3 parameter axes simultaneously with bounded ranges (max 500 combos), returns structured metric matrix with per-cell results, best cell, robustness score (neighbor analysis), and fragility warnings. Plotly heatmap renders the 2D parameter landscape. API at POST /api/optimization/grid-search. Proven by 10 unit tests, 4 API contract tests, 3 E2E tests, and frontend build gate. S04: Grid search runs live E2E on real pair data, heatmap renders, and 'Use best params' CTA hands off to /backtest with correct URL params.
 - Notes: Existing research modules do single-parameter sweeps. This extends to multi-parameter optimization with honest reporting.
 
 ### R012 — The backtester and research tools actively warn when results look too good: Sharpe > 3, profit factor > 5 with few trades, results that collapse with small parameter changes, in-sample vs out-of-sample divergence.
@@ -201,7 +201,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: research
 - Primary owning slice: M002/S03
 - Supporting slices: none
-- Validation: S03: Overfitting detector with 4 heuristic rules (Sharpe >3, profit factor >5 with <20 trades, win rate >85% with <10 trades, smooth equity) wired into run_backtest() so every backtest surface screens automatically. Fragility detector flags narrow parameter spikes in grid search. Both render with distinct warning styling in BacktestResultView and Optimize page. Proven by 21 unit tests (all thresholds + negative cases), API contract tests, and E2E tests.
+- Validation: S03: Overfitting detector with 4 heuristic rules (Sharpe >3, profit factor >5 with <20 trades, win rate >85% with <10 trades, smooth equity) wired into run_backtest() so every backtest surface screens automatically. Fragility detector flags narrow parameter spikes in grid search. Both render with distinct warning styling in BacktestResultView and Optimize page. Proven by 21 unit tests (all thresholds + negative cases), API contract tests, and E2E tests. S04: Overfitting detection active in live E2E backtest and grid search flows — warnings render when triggered.
 - Notes: Research confirms these thresholds as standard overfitting indicators.
 
 ### R013 — The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
@@ -212,7 +212,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: research
 - Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract.
+- Validation: S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract. S04: Look-ahead safety verified through the live backtest execution path in E2E.
 - Notes: Architectural enforcement: signals computed from rolling windows only, no future data access possible.
 
 ### R014 — Beyond simple train/test split: retrain strategy parameters on rolling windows and test on subsequent periods. This simulates what would actually happen if you re-optimized periodically.
@@ -223,7 +223,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: research
 - Primary owning slice: M002/S03
 - Supporting slices: none
-- Validation: S03: Walk-forward validation with rolling train/test windows, grid-search optimization per train fold, single-backtest evaluation on test fold, per-fold and aggregate metrics, train-test divergence ratio, and stability verdict (stable/moderate/fragile). API at POST /api/optimization/walk-forward. Recommended params only populated for stable/moderate verdicts. Proven by 11 unit tests covering fold splitting, temporal ordering, no data leaks, and edge cases.
+- Validation: S03: Walk-forward validation with rolling train/test windows, grid-search optimization per train fold, single-backtest evaluation on test fold, per-fold and aggregate metrics, train-test divergence ratio, and stability verdict (stable/moderate/fragile). API at POST /api/optimization/walk-forward. Recommended params only populated for stable/moderate verdicts. Proven by 11 unit tests covering fold splitting, temporal ordering, no data leaks, and edge cases. S04: Walk-forward runs live E2E with stability verdict rendering confirmed.
 - Notes: The existing OOS validation module is a stepping stone. Walk-forward extends this concept.
 
 ### R015 — Every backtest result, research finding, and recommendation explicitly states its assumptions, sample size, confidence level, and limitations. No vanity metrics. No hiding bad results.
@@ -234,7 +234,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S02
 - Supporting slices: M002/S01, M002/S03
-- Validation: S01: Backtest outputs expose assumptions, warnings, data-quality state, and honest-reporting footer. S02: All 8 research modules expose structured takeaway payloads with severity, observations count, date range, and fee assumptions. S03: Optimization and walk-forward responses include honest-reporting footer, robustness annotations, overfitting/fragility/walk-forward warnings, sample sizes, and explicit assumption statements. The transparency contract now covers the full research + backtest + optimization surface.
+- Validation: S01: Backtest outputs expose assumptions, warnings, data-quality state, and honest-reporting footer. S02: All 8 research modules expose structured takeaway payloads with severity, observations count, date range, and fee assumptions. S03: Optimization and walk-forward responses include honest-reporting footer, robustness annotations, overfitting/fragility/walk-forward warnings, sample sizes, and explicit assumption statements. The transparency contract now covers the full research + backtest + optimization surface. S04: Honest-reporting footer verified in live E2E backtest flow. Full transparency chain confirmed across research, backtest, and optimization surfaces.
 - Notes: S01 established the trust-reporting contract. S02 extended it across all 8 research modules: every response includes sample size (observations, days_back), date range context, fee assumptions (tx-cost), takeaway severity, and module-specific limitations. Full validation requires S03 (optimization transparency with robustness annotations and overfitting warnings).
 
 ### R016 — The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
@@ -256,7 +256,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04, M002/S01, M002/S02
-- Validation: Academy (M001): Steps 1-6 explain every formula and concept at 3 depths. S01: Backtest execution model, fee model, assumptions visible in honest-reporting footer. S02: All 8 research modules show evidence via stat cards, charts, and contextual takeaways. S03: Grid search shows per-cell metrics, robustness scoring methodology, and fragility diagnosis. Walk-forward shows per-fold train vs test comparison, divergence ratio, and stability classification. All assumptions and decisions visible across the full research + backtest + optimization surface.
+- Validation: Academy (M001): Steps 1-6 explain every formula and concept at 3 depths. S01: Backtest execution model, fee model, assumptions visible in honest-reporting footer. S02: All 8 research modules show evidence via stat cards, charts, and contextual takeaways. S03: Grid search shows per-cell metrics, robustness scoring methodology, and fragility diagnosis. Walk-forward shows per-fold train vs test comparison, divergence ratio, and stability classification. All assumptions and decisions visible across the full research + backtest + optimization surface. S04: Full visibility chain confirmed in live E2E — Academy teaches, research shows evidence, backtest shows assumptions, optimization shows robustness.
 - Notes: Academy visibility proven in M001. S01 made backtest execution model, fee model, data basis, and limitations visible. S02 extended evidence visibility to all 8 research modules: each shows stat cards, charts, data tables, and contextual takeaway alongside recommendations. Still needs S03 (optimization transparency) for full validation.
 
 ### R026 — Searchable glossary of 17+ stat arb terms with cross-links from Academy educational panels.
@@ -329,22 +329,22 @@ This file is the explicit capability and coverage contract for the project.
 | R005 | core-capability | validated | M001/S01 | none | S01 delivered and tested the FastAPI REST layer: 7 endpoints wrap PairAnalysis/DataCacheManager with 51 API tests, OpenAPI docs, and live imports. The frontend consumed these endpoints across S03-S05, proving the UI no longer runs Python analysis directly. |
 | R006 | primary-user-loop | validated | M001/S02 | M001/S03, M001/S05 | S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work. |
 | R007 | quality-attribute | validated | M001/S02 | none | S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop. |
-| R008 | primary-user-loop | validated | M002/S01 | none | S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules: rolling stability, OOS validation, timeframe comparison, spread method, z-score threshold, transaction cost, and cointegration method. All 8 run from React against FastAPI, return structured ResearchTakeawayPayload results from cached data, and render takeaway banners. Z-score threshold and tx-cost hand off recommended parameters to the backtester. Proven by 8 contract tests, 4 E2E tests, and frontend build gate. |
-| R009 | core-capability | validated | M002/S01 | none | S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting. |
-| R010 | core-capability | validated | M002/S01 | none | S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view. |
-| R011 | differentiator | validated | M002/S03 | none | S03: Grid search engine sweeps ≤3 parameter axes simultaneously with bounded ranges (max 500 combos), returns structured metric matrix with per-cell results, best cell, robustness score (neighbor analysis), and fragility warnings. Plotly heatmap renders the 2D parameter landscape. API at POST /api/optimization/grid-search. Proven by 10 unit tests, 4 API contract tests, 3 E2E tests, and frontend build gate. |
-| R012 | failure-visibility | validated | M002/S03 | none | S03: Overfitting detector with 4 heuristic rules (Sharpe >3, profit factor >5 with <20 trades, win rate >85% with <10 trades, smooth equity) wired into run_backtest() so every backtest surface screens automatically. Fragility detector flags narrow parameter spikes in grid search. Both render with distinct warning styling in BacktestResultView and Optimize page. Proven by 21 unit tests (all thresholds + negative cases), API contract tests, and E2E tests. |
-| R013 | constraint | validated | M002/S01 | none | S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract. |
-| R014 | differentiator | validated | M002/S03 | none | S03: Walk-forward validation with rolling train/test windows, grid-search optimization per train fold, single-backtest evaluation on test fold, per-fold and aggregate metrics, train-test divergence ratio, and stability verdict (stable/moderate/fragile). API at POST /api/optimization/walk-forward. Recommended params only populated for stable/moderate verdicts. Proven by 11 unit tests covering fold splitting, temporal ordering, no data leaks, and edge cases. |
-| R015 | quality-attribute | validated | M002/S02 | M002/S01, M002/S03 | S01: Backtest outputs expose assumptions, warnings, data-quality state, and honest-reporting footer. S02: All 8 research modules expose structured takeaway payloads with severity, observations count, date range, and fee assumptions. S03: Optimization and walk-forward responses include honest-reporting footer, robustness annotations, overfitting/fragility/walk-forward warnings, sample sizes, and explicit assumption statements. The transparency contract now covers the full research + backtest + optimization surface. |
+| R008 | primary-user-loop | validated | M002/S01 | none | S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules. All 8 proven by contract tests, E2E tests, and build gate. S04: Full integrated acceptance — research modules run live on cached BTC+ETH data through real entrypoints. |
+| R009 | core-capability | validated | M002/S01 | none | S01 delivered pure-Python z-score mean-reversion strategy with structured equity curve, trade ledger, and cumulative returns. S04: Live backtest execution verified E2E on cached data. |
+| R010 | core-capability | validated | M002/S01 | none | S01 backtest engine computes Sharpe, Sortino, max drawdown, win rate, profit factor, avg holding period. S04: Metrics rendering verified in live E2E backtest flow. |
+| R011 | differentiator | validated | M002/S03 | none | S03: Grid search sweeps ≤3 parameter axes, returns metric matrix with robustness score and fragility warnings. S04: Grid search runs live E2E, heatmap renders, 'Use best params' CTA hands off to /backtest. |
+| R012 | failure-visibility | validated | M002/S03 | none | S03: Overfitting detector with 4 heuristic rules wired into run_backtest(). Fragility detector flags grid search spikes. S04: Overfitting detection active in live E2E backtest and grid search flows. |
+| R013 | constraint | validated | M002/S01 | none | S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data. S04: Look-ahead safety verified through the live backtest execution path in E2E. |
+| R014 | differentiator | validated | M002/S03 | none | S03: Walk-forward with rolling train/test windows, per-fold and aggregate metrics, stability verdict. S04: Walk-forward runs live E2E with stability verdict rendering confirmed. |
+| R015 | quality-attribute | validated | M002/S02 | M002/S01, M002/S03 | S01–S03 transparency contract covers research + backtest + optimization. S04: Honest-reporting footer verified in live E2E. Full transparency chain confirmed across all surfaces. |
 | R016 | continuity | validated | M001/S01 | none | S01 preserved the existing CCXT → Bitvavo → parquet cache pipeline and exposed all 44 cached datasets through GET /api/pairs and direct parquet-backed OHLCV reads. API routers intentionally read parquet files directly and never trigger Bitvavo fetches; S03-S05 consumed the cached data successfully in the running app. |
 | R017 | core-capability | active | M003/S01 | none | unmapped |
 | R018 | primary-user-loop | active | M003/S02 | M004 | unmapped |
 | R019 | core-capability | active | M004/S01 | none | unmapped |
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
-| R022 | quality-attribute | validated | M001/S03 | M001/S04, M002/S01, M002/S02 | Academy (M001): Steps 1-6 explain every formula and concept at 3 depths. S01: Backtest execution model, fee model, assumptions visible in honest-reporting footer. S02: All 8 research modules show evidence via stat cards, charts, and contextual takeaways. S03: Grid search shows per-cell metrics, robustness scoring methodology, and fragility diagnosis. Walk-forward shows per-fold train vs test comparison, divergence ratio, and stability classification. All assumptions and decisions visible across the full research + backtest + optimization surface. |
-| R023 | failure-visibility | active | M002/S01 | none | S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented. |
+| R022 | quality-attribute | validated | M001/S03 | M001/S04, M002/S01, M002/S02 | Academy explains every formula at 3 depths. S01–S03 make backtest, research, and optimization assumptions visible. S04: Full visibility chain confirmed in live E2E — Academy teaches, research shows evidence, backtest shows assumptions, optimization shows robustness. |
+| R023 | failure-visibility | active | M002/S01 | none | S01: Preflight validates input data with structured blocker/warning separation. Partial — gap detection not implemented. S04: Existing preflight confirmed working in live E2E backtest flow. |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
 | R026 | primary-user-loop | validated | M001/S06 | none | S06 live UAT verified /glossary renders all 17 terms, filters correctly for term/alias/definition queries (cointegration, beta, mean), shows the explicit empty state, resolves direct hashes like #glossary-cointegration and #glossary-z-score, and Academy steps 2-6 click through to the correlation, cointegration, hedge ratio, ADF test, spread, mean reversion, stationarity, and z-score anchors. |

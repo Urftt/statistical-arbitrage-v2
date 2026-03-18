@@ -56,6 +56,14 @@ With the E2E integration flow tests passing from T01, M002 now has proof that th
 - `.gsd/REQUIREMENTS.md` contains "S04" in validation notes for R008–R015 and R022
 - `.gsd/STATE.md` shows M002 complete
 
+## Observability Impact
+
+This task is documentation-only (requirement closure and state updates). No new runtime signals are introduced.
+
+- **Inspection:** `.gsd/REQUIREMENTS.md` — grep for "S04:" in validation fields to confirm all M002 requirements have integrated acceptance evidence.
+- **Inspection:** `.gsd/STATE.md` — check that M002 is marked complete and S04 is done.
+- **Failure state:** If regression gates fail, the task cannot close. Re-run individual gates to isolate: `uv run pytest tests/ -q`, `cd frontend && npm run build`, `cd frontend && npm run test:e2e`.
+
 ## Inputs
 
 - T01 completed: E2E integration flow tests passing, any bug fixes already committed
