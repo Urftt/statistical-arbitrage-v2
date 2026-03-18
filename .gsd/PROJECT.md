@@ -26,11 +26,12 @@ M001 is complete. M002 is in progress (S01 + S02 complete, S03 + S04 remaining).
 - **Glossary + integration proof** (M001/S06 ✅): Searchable 17-term glossary with stable deep links, Academy cross-links, hydration-noise fix in the shared shell, and final live route-loop UAT across Academy → Glossary → Deep Dive → Scanner → Academy.
 - **Backtesting engine + first research handoff** (M002/S01 ✅): Look-ahead-safe z-score mean-reversion strategy, trade ledger, equity curve, performance metrics (Sharpe, Sortino, drawdown, etc.), data-quality preflight, honest-reporting footer, and live /backtest page with research→backtest parameter handoff.
 - **Full Research Hub** (M002/S02 ✅): All 8 research modules (lookback, rolling stability, OOS validation, timeframe, spread method, z-score threshold, tx cost, cointegration method) run from React against FastAPI with typed contracts, takeaway banners, and backtest recommendation handoff for threshold/cost modules. 8 contract tests + 4 E2E tests.
+- **Optimization & Walk-Forward** (M002/S03 ✅): Bounded grid search (≤3 axes, ≤500 combos) with Plotly heatmap, robustness scoring, and fragility detection. Walk-forward validation with rolling train/test windows, per-fold metrics, stability verdict. Overfitting detector (4 heuristic rules) wired into every backtest path. `/optimize` page with tabbed Grid Search and Walk-Forward panels, inline warnings, and backtest handoff CTAs. 46 engine/API tests + 3 E2E tests.
 - **Visualization**: Plotly figure builders for spread plots and educational concepts, rendered in React via `react-plotly.js`.
 - **Config**: Pydantic settings with Bitvavo creds, data paths, and strategy parameters.
-- **Verification**: 118 Python tests passing, 19 E2E tests passing, frontend build passing, and live runtime UAT recorded for the integrated app.
+- **Verification**: 164 Python tests passing, 22 E2E tests passing, frontend build passing, and live runtime UAT recorded for the integrated app.
 
-Next up: M002/S03 (grid search, walk-forward validation, overfitting warnings) and M002/S04 (final integration closure).
+Next up: M002/S04 (final workspace integration and live acceptance closure).
 
 ## Architecture / Key Patterns
 

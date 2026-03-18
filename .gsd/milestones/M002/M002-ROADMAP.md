@@ -58,7 +58,7 @@ Coverage map:
   > After this: A user can run one real research module, accept its recommended parameters, and see a completed localhost backtest with equity curve, trade log, metrics, data-quality status, warnings, and honest-reporting metadata.
 - [x] **S02: Complete the 8-module Research Hub on the shared contract** `risk:medium` `depends:[S01]`
   > After this: All 8 research modules run from the React Research Hub against FastAPI, render structured results with takeaway banners, and can hand their selected or recommended parameters to the backtester.
-- [ ] **S03: Optimization, walk-forward, and overfitting visibility** `risk:medium` `depends:[S01]`
+- [x] **S03: Optimization, walk-forward, and overfitting visibility** `risk:medium` `depends:[S01]`
   > After this: A user can run bounded grid search and walk-forward validation on a real pair, inspect heatmap and rolling-window results, and see inline warnings when the best-looking results are fragile or suspicious.
 - [ ] **S04: Workspace integration and live acceptance closure** `risk:low` `depends:[S02,S03]`
   > After this: The full Research & Backtest workspace is exercised live on localhost end-to-end — Research Hub → one-click Backtester → optimization/walk-forward drill-down — with final UAT evidence and no broken handoffs.
