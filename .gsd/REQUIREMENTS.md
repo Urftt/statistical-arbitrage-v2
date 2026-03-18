@@ -13,29 +13,7 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: M002/S01
 - Supporting slices: none
 - Validation: unmapped
-- Notes: Analysis functions exist in research.py (938 lines). UI needs rebuild. Takeaway generators have 48 tests.
-
-### R009 — Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
-- Class: core-capability
-- Status: active
-- Description: Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
-- Why it matters: Historical performance validation is the bridge between research and real trading.
-- Source: user
-- Primary owning slice: M002/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: StrategySettings already defined in config/settings.py with lookback, thresholds, capital, fees.
-
-### R010 — Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
-- Class: core-capability
-- Status: active
-- Description: Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
-- Why it matters: You can't evaluate a strategy without proper metrics. These are the standard quantitative measures.
-- Source: user
-- Primary owning slice: M002/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: none
+- Notes: S01 delivered the first live module (lookback-window sweep) on the shared result envelope with takeaway banner and recommended_backtest_params handoff. Seven remaining modules are S02 scope.
 
 ### R011 — The system can sweep parameters (z-score thresholds, lookback windows, etc.) across ranges and surface which combinations actually work on the user's data. Not just testing what the user asks — proactively showing what the data says.
 - Class: differentiator
@@ -59,17 +37,6 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Research confirms these thresholds as standard overfitting indicators.
 
-### R013 — The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
-- Class: constraint
-- Status: active
-- Description: The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
-- Why it matters: Look-ahead bias is the most common way backtests produce false results. The platform's "honest" commitment requires structural prevention.
-- Source: research
-- Primary owning slice: M002/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Architectural enforcement: signals computed from rolling windows only, no future data access possible.
-
 ### R014 — Beyond simple train/test split: retrain strategy parameters on rolling windows and test on subsequent periods. This simulates what would actually happen if you re-optimized periodically.
 - Class: differentiator
 - Status: active
@@ -90,7 +57,7 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: M002/S02
 - Supporting slices: M002/S01, M002/S03
 - Validation: unmapped
-- Notes: Applies to research module takeaways, backtest summaries, and parameter recommendations.
+- Notes: S01 established the trust-reporting contract: research and backtest outputs now expose recommendation context, assumptions, warnings, data-quality state, and limitations as structured API payloads. Extends across all modules in S02 and optimization in S03.
 
 ### R017 — Run strategies against live market data with simulated order execution. Track positions, fills, and P&L as if trading real money.
 - Class: core-capability
@@ -156,7 +123,7 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04, M002/S01, M002/S02
 - Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency).
-- Notes: Applies to every pillar. This is what "transparent + honest" means in practice.
+- Notes: S01 made execution model, fee model, data basis, assumptions, and limitations visible in the backtest product surface via the honest-reporting footer. Academy visibility was proven in M001. Full validation requires S02 (research breadth) and S03 (optimization transparency).
 
 ### R023 — Before running a backtest, validate the input data for completeness: check for missing candles, timestamp gaps, and anomalous values. Report issues clearly.
 - Class: failure-visibility
@@ -164,10 +131,10 @@ This file is the explicit capability and coverage contract for the project.
 - Description: Before running a backtest, validate the input data for completeness: check for missing candles, timestamp gaps, and anomalous values. Report issues clearly.
 - Why it matters: Bad data produces misleading results. The platform should catch this before wasting time on a flawed backtest.
 - Source: research
-- Primary owning slice: M002/S02
+- Primary owning slice: M002/S01
 - Supporting slices: none
-- Validation: unmapped
-- Notes: Research consistently flags data quality as a top backtesting pitfall.
+- Validation: S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented.
+- Notes: S01 built preflight checking for nulls, non-finite values, impossible prices, short histories, and non-monotonic timestamps. Explicit regular-interval candle-gap detection still needed before closing. Gap detection should be addressed in S02 or S03.
 
 ## Validated
 
@@ -247,6 +214,39 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: none
 - Validation: S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop.
 - Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
+
+### R009 — Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
+- Class: core-capability
+- Status: validated
+- Description: Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
+- Why it matters: Historical performance validation is the bridge between research and real trading.
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting.
+- Notes: StrategySettings already defined in config/settings.py with lookback, thresholds, capital, fees.
+
+### R010 — Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
+- Class: core-capability
+- Status: validated
+- Description: Comprehensive performance metrics for backtest results. Must include risk-adjusted returns (Sharpe, Sortino), drawdown analysis, win rate, profit factor, average holding period.
+- Why it matters: You can't evaluate a strategy without proper metrics. These are the standard quantitative measures.
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view.
+- Notes: none
+
+### R013 — The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
+- Class: constraint
+- Status: validated
+- Description: The backtesting engine must never use data from time t+1 to make decisions at time t. All indicators use only historically available data. Enforced by architecture, not just convention.
+- Why it matters: Look-ahead bias is the most common way backtests produce false results. The platform's "honest" commitment requires structural prevention.
+- Source: research
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract.
+- Notes: Architectural enforcement: signals computed from rolling windows only, no future data access possible.
 
 ### R016 — The working data pipeline (CCXT → Bitvavo → parquet cache with delta updates) and existing ~20 EUR pair cache are preserved and accessible through the new API layer.
 - Class: continuity
@@ -330,11 +330,11 @@ This file is the explicit capability and coverage contract for the project.
 | R006 | primary-user-loop | validated | M001/S02 | M001/S03, M001/S05 | S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work. |
 | R007 | quality-attribute | validated | M001/S02 | none | S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop. |
 | R008 | primary-user-loop | active | M002/S01 | none | unmapped |
-| R009 | core-capability | active | M002/S02 | none | unmapped |
-| R010 | core-capability | active | M002/S02 | none | unmapped |
+| R009 | core-capability | validated | M002/S01 | none | S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting. |
+| R010 | core-capability | validated | M002/S01 | none | S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view. |
 | R011 | differentiator | active | M002/S03 | none | unmapped |
 | R012 | failure-visibility | active | M002/S03 | none | unmapped |
-| R013 | constraint | active | M002/S02 | none | unmapped |
+| R013 | constraint | validated | M002/S01 | none | S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract. |
 | R014 | differentiator | active | M002/S03 | none | unmapped |
 | R015 | quality-attribute | active | M002/S02 | M002/S01, M002/S03 | unmapped |
 | R016 | continuity | validated | M001/S01 | none | S01 preserved the existing CCXT → Bitvavo → parquet cache pipeline and exposed all 44 cached datasets through GET /api/pairs and direct parquet-backed OHLCV reads. API routers intentionally read parquet files directly and never trigger Bitvavo fetches; S03-S05 consumed the cached data successfully in the running app. |
@@ -344,7 +344,7 @@ This file is the explicit capability and coverage contract for the project.
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
 | R022 | quality-attribute | active | M001/S03 | M001/S04, M002/S01, M002/S02 | S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency). |
-| R023 | failure-visibility | active | M002/S02 | none | unmapped |
+| R023 | failure-visibility | active | M002/S01 | none | S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented. |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
 | R026 | primary-user-loop | validated | M001/S06 | none | S06 live UAT verified /glossary renders all 17 terms, filters correctly for term/alias/definition queries (cointegration, beta, mean), shows the explicit empty state, resolves direct hashes like #glossary-cointegration and #glossary-z-score, and Academy steps 2-6 click through to the correlation, cointegration, hedge ratio, ADF test, spread, mean reversion, stationarity, and z-score anchors. |
@@ -353,7 +353,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 15
-- Mapped to slices: 15
-- Validated: 9 (R001, R002, R003, R004, R005, R006, R007, R016, R026)
+- Active requirements: 12
+- Mapped to slices: 12
+- Validated: 12 (R001, R002, R003, R004, R005, R006, R007, R009, R010, R013, R016, R026)
 - Unmapped active requirements: 0
