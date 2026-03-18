@@ -1,10 +1,9 @@
 # GSD State
 
 **Active Milestone:** M002: Research & Backtest
-**Active Slice:** S02: Complete the 8-module Research Hub on the shared contract
+**Active Slice:** S04: Workspace integration and live acceptance closure
 **Phase:** executing
-**Active Task:** T01: Add 7 research API endpoints, Pydantic schemas, and contract tests
-**Requirements Status:** 12 active · 12 validated · 2 deferred · 2 out of scope
+**Requirements Status:** 6 active · 18 validated · 2 deferred · 2 out of scope
 
 ## Milestone Registry
 - ✅ **M001:** Frontend Foundation + Academy
@@ -19,4 +18,4 @@
 - None
 
 ## Next Action
-Execute T01 of S02 (Add 7 research API endpoints, Pydantic schemas, and contract tests).
+Execute T01 of S04 (Write E2E integration flow tests and fix discovered bugs).
