@@ -4,17 +4,6 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
-### R008 — Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
-- Class: primary-user-loop
-- Status: active
-- Description: Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
-- Why it matters: These are the tools for data-driven decision making — testing what actually works vs what textbooks claim.
-- Source: user
-- Primary owning slice: M002/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: S01 delivered the first live module (lookback-window sweep) on the shared result envelope with takeaway banner and recommended_backtest_params handoff. Seven remaining modules are S02 scope.
-
 ### R011 — The system can sweep parameters (z-score thresholds, lookback windows, etc.) across ranges and surface which combinations actually work on the user's data. Not just testing what the user asks — proactively showing what the data says.
 - Class: differentiator
 - Status: active
@@ -56,8 +45,8 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S02
 - Supporting slices: M002/S01, M002/S03
-- Validation: unmapped
-- Notes: S01 established the trust-reporting contract: research and backtest outputs now expose recommendation context, assumptions, warnings, data-quality state, and limitations as structured API payloads. Extends across all modules in S02 and optimization in S03.
+- Validation: S01: Backtest outputs expose assumptions, warnings, data-quality state, and honest-reporting footer. S02: All 8 research modules expose structured takeaway payloads with severity, observations count, date range, and fee assumptions. The transparency contract covers the full research surface. Remaining: S03 must extend this to optimization and walk-forward results.
+- Notes: S01 established the trust-reporting contract. S02 extended it across all 8 research modules: every response includes sample size (observations, days_back), date range context, fee assumptions (tx-cost), takeaway severity, and module-specific limitations. Full validation requires S03 (optimization transparency with robustness annotations and overfitting warnings).
 
 ### R017 — Run strategies against live market data with simulated order execution. Track positions, fills, and P&L as if trading real money.
 - Class: core-capability
@@ -122,8 +111,8 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: M001/S04, M002/S01, M002/S02
-- Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency).
-- Notes: S01 made execution model, fee model, data basis, assumptions, and limitations visible in the backtest product surface via the honest-reporting footer. Academy visibility was proven in M001. Full validation requires S02 (research breadth) and S03 (optimization transparency).
+- Validation: S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test, Engle-Granger, spread formula, z-score formula, and signal rules. S01: Backtest execution model, fee model, assumptions, and limitations visible in honest-reporting footer. S02: All 8 research modules show data, charts, stat cards, and contextual takeaway for evidence visibility. Full validation requires S03 (optimization transparency).
+- Notes: Academy visibility proven in M001. S01 made backtest execution model, fee model, data basis, and limitations visible. S02 extended evidence visibility to all 8 research modules: each shows stat cards, charts, data tables, and contextual takeaway alongside recommendations. Still needs S03 (optimization transparency) for full validation.
 
 ### R023 — Before running a backtest, validate the input data for completeness: check for missing candles, timestamp gaps, and anomalous values. Report issues clearly.
 - Class: failure-visibility
@@ -214,6 +203,17 @@ This file is the explicit capability and coverage contract for the project.
 - Supporting slices: none
 - Validation: S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop.
 - Notes: The existing mantine_dark Plotly template defines colors, fonts, grid styling.
+
+### R008 — Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
+- Class: primary-user-loop
+- Status: validated
+- Description: Eight research modules: rolling stability, out-of-sample validation, timeframe comparison, spread method, z-score threshold sweep, lookback window sweep, transaction costs, cointegration method comparison. Each takes real data, runs analysis, returns structured results with auto-generated takeaway banners.
+- Why it matters: These are the tools for data-driven decision making — testing what actually works vs what textbooks claim.
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: none
+- Validation: S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules: rolling stability, OOS validation, timeframe comparison, spread method, z-score threshold, transaction cost, and cointegration method. All 8 run from React against FastAPI, return structured ResearchTakeawayPayload results from cached data, and render takeaway banners. Z-score threshold and tx-cost hand off recommended parameters to the backtester. Proven by 8 contract tests, 4 E2E tests, and frontend build gate.
+- Notes: S01 delivered lookback sweep. S02 delivered the remaining 7 modules. All 8 follow the shared envelope pattern with typed results, takeaway banners, and optional recommended_backtest_params.
 
 ### R009 — Run a z-score mean-reversion strategy over historical data. Track equity curve, individual trade outcomes, and cumulative returns. Results as a structured Pydantic model.
 - Class: core-capability
@@ -329,21 +329,21 @@ This file is the explicit capability and coverage contract for the project.
 | R005 | core-capability | validated | M001/S01 | none | S01 delivered and tested the FastAPI REST layer: 7 endpoints wrap PairAnalysis/DataCacheManager with 51 API tests, OpenAPI docs, and live imports. The frontend consumed these endpoints across S03-S05, proving the UI no longer runs Python analysis directly. |
 | R006 | primary-user-loop | validated | M001/S02 | M001/S03, M001/S05 | S06 live UAT verified the shared header asset1/asset2/timeframe selectors remained visible across Academy, Glossary, Deep Dive, and Scanner. Deep Dive consumed the BTC/ETH/1h header state, while Scanner intentionally kept its page-local scan controls for batch work. |
 | R007 | quality-attribute | validated | M001/S02 | none | S06 live UAT verified the Mantine dark shell and styling stayed consistent across Academy, Glossary, Deep Dive, and Scanner, with no blank states or broken navigation during the Academy → Glossary → Deep Dive → Scanner → Academy route loop. |
-| R008 | primary-user-loop | active | M002/S01 | none | unmapped |
+| R008 | primary-user-loop | validated | M002/S01 | none | S01 delivered the first live module (lookback sweep) with shared envelope and backtest handoff. S02 completed all 7 remaining modules: rolling stability, OOS validation, timeframe comparison, spread method, z-score threshold, transaction cost, and cointegration method. All 8 run from React against FastAPI, return structured ResearchTakeawayPayload results from cached data, and render takeaway banners. Z-score threshold and tx-cost hand off recommended parameters to the backtester. Proven by 8 contract tests, 4 E2E tests, and frontend build gate. |
 | R009 | core-capability | validated | M002/S01 | none | S01 delivered a pure-Python z-score mean-reversion strategy running over historical cached data, returning structured equity curve, trade ledger, and cumulative returns through both the engine and live /backtest page. Deterministic fixtures verify signal timing, fee math, and trade accounting. |
 | R010 | core-capability | validated | M002/S01 | none | S01 backtest engine computes and renders Sharpe, Sortino, max drawdown, win rate, profit factor, and average holding period. Metrics are returned in a strict Pydantic model and displayed in the live /backtest page result view. |
 | R011 | differentiator | active | M002/S03 | none | unmapped |
 | R012 | failure-visibility | active | M002/S03 | none | unmapped |
 | R013 | constraint | validated | M002/S01 | none | S01 enforces look-ahead safety architecturally: trailing-window OLS hedge ratios and z-scores use only historically available data, signals are emitted at bar close, execution occurs on the next bar's close. Deterministic tests in test_backtest_engine.py prove the timing contract. |
 | R014 | differentiator | active | M002/S03 | none | unmapped |
-| R015 | quality-attribute | active | M002/S02 | M002/S01, M002/S03 | unmapped |
+| R015 | quality-attribute | active | M002/S02 | M002/S01, M002/S03 | S01: Backtest outputs expose assumptions, warnings, data-quality state, and honest-reporting footer. S02: All 8 research modules expose structured takeaway payloads with severity, observations count, date range, and fee assumptions. The transparency contract covers the full research surface. Remaining: S03 must extend this to optimization and walk-forward results. |
 | R016 | continuity | validated | M001/S01 | none | S01 preserved the existing CCXT → Bitvavo → parquet cache pipeline and exposed all 44 cached datasets through GET /api/pairs and direct parquet-backed OHLCV reads. API routers intentionally read parquet files directly and never trigger Bitvavo fetches; S03-S05 consumed the cached data successfully in the running app. |
 | R017 | core-capability | active | M003/S01 | none | unmapped |
 | R018 | primary-user-loop | active | M003/S02 | M004 | unmapped |
 | R019 | core-capability | active | M004/S01 | none | unmapped |
 | R020 | constraint | active | M004/S02 | none | unmapped |
 | R021 | operability | active | M004/S03 | none | unmapped |
-| R022 | quality-attribute | active | M001/S03 | M001/S04, M002/S01, M002/S02 | S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test interpretation, Engle-Granger procedure, spread formula, z-score formula, and trading signal rules with exact thresholds. Academy visibility complete. Full validation requires M002 (research/backtest transparency). |
+| R022 | quality-attribute | active | M001/S03 | M001/S04, M002/S01, M002/S02 | S03: Steps 1-3 explain correlation, cointegration, price normalization with 3-layer depth. S04: Steps 4-6 show ADF test, Engle-Granger, spread formula, z-score formula, and signal rules. S01: Backtest execution model, fee model, assumptions, and limitations visible in honest-reporting footer. S02: All 8 research modules show data, charts, stat cards, and contextual takeaway for evidence visibility. Full validation requires S03 (optimization transparency). |
 | R023 | failure-visibility | active | M002/S01 | none | S01: Preflight validates input data with structured blocker/warning separation, surfaced in both API and UI. Partial — missing-candle gap detection not yet implemented. |
 | R024 | core-capability | deferred | none | none | unmapped |
 | R025 | operability | deferred | none | none | unmapped |
@@ -353,7 +353,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 12
-- Mapped to slices: 12
-- Validated: 12 (R001, R002, R003, R004, R005, R006, R007, R009, R010, R013, R016, R026)
+- Active requirements: 11
+- Mapped to slices: 11
+- Validated: 13 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R013, R016, R026)
 - Unmapped active requirements: 0
