@@ -44,7 +44,7 @@
 
 ## Tasks
 
-- [ ] **T01: Add 7 research API endpoints, Pydantic schemas, and contract tests** `est:2h`
+- [x] **T01: Add 7 research API endpoints, Pydantic schemas, and contract tests** `est:2h`
   - Why: The backend must expose all 7 remaining analysis functions through typed API endpoints before the frontend can render them. This closes the API breadth for R008.
   - Files: `api/schemas.py`, `api/routers/research.py`, `tests/test_research_api.py`
   - Do: Add 7 request/response Pydantic model pairs in `api/schemas.py` following the `LookbackSweepResponse` envelope pattern. Add 7 `@router.post(...)` handlers in `api/routers/research.py` that load pair data via `_load_pair_data()`, call the analysis function, generate takeaway, and wrap in the response model. For `rolling_cointegration`: pass timestamps from `_load_pair_data()` and serialize DataFrame via `.to_dicts()`. For `compare_timeframes`: build a closure that loads parquet files and returns `None` on missing cache. For `compare_spread_methods`: omit the numpy `spread` array from the response payload. For z-score threshold and tx-cost: pre-compute z-score from hedge ratio + spread + rolling window. Z-score threshold and tx-cost endpoints must return `recommended_backtest_params` with a valid `BacktestRequest`; all others return `null`. Add contract tests in `tests/test_research_api.py` that POST to each endpoint with a real cached pair and verify 200 + correct envelope structure.

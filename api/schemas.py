@@ -324,6 +324,374 @@ class ResearchTakeawayPayload(BaseModel):
     )
 
 
+# ---------------------------------------------------------------------------
+# Rolling Stability research module
+# ---------------------------------------------------------------------------
+
+
+class RollingStabilityRequest(BaseModel):
+    """Request for rolling cointegration stability analysis."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+    window: int = Field(default=90, ge=10, description="Rolling window size in observations")
+
+
+class RollingStabilityResultPayload(BaseModel):
+    """One row from the rolling cointegration result."""
+
+    timestamp: int = Field(description="Unix timestamp in milliseconds")
+    p_value: float | None = Field(description="Cointegration test p-value")
+    is_cointegrated: bool = Field(description="Whether cointegrated at this window")
+    hedge_ratio: float | None = Field(description="OLS hedge ratio for this window")
+    test_statistic: float | None = Field(description="Engle-Granger test statistic")
+
+
+class RollingStabilityResponse(BaseModel):
+    """Rolling cointegration stability research module response."""
+
+    module: Literal["rolling_stability"] = Field(
+        default="rolling_stability",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of overlapping observations analyzed")
+    results: list[RollingStabilityResultPayload] = Field(
+        default_factory=list,
+        description="Rolling cointegration test results",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Not applicable for diagnostic module",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Out-of-Sample Validation research module
+# ---------------------------------------------------------------------------
+
+
+class OOSValidationRequest(BaseModel):
+    """Request for out-of-sample validation analysis."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+    split_ratios: list[float] | None = Field(
+        default=None,
+        description="Formation period fractions (default: [0.5, 0.6, 0.7, 0.8])",
+    )
+
+
+class OOSResultPayload(BaseModel):
+    """One split result from out-of-sample validation."""
+
+    formation_p_value: float
+    formation_cointegrated: bool
+    formation_hedge_ratio: float
+    trading_p_value: float
+    trading_cointegrated: bool
+    trading_hedge_ratio: float
+    formation_adf_stat: float
+    trading_adf_stat: float
+    formation_n: int
+    trading_n: int
+    split_ratio: float
+
+
+class OOSValidationResponse(BaseModel):
+    """Out-of-sample validation research module response."""
+
+    module: Literal["oos_validation"] = Field(
+        default="oos_validation",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of overlapping observations analyzed")
+    results: list[OOSResultPayload] = Field(
+        default_factory=list,
+        description="Out-of-sample validation results per split ratio",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Not applicable for diagnostic module",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Timeframe Comparison research module
+# ---------------------------------------------------------------------------
+
+
+class TimeframeRequest(BaseModel):
+    """Request for timeframe comparison analysis. No timeframe field — compares across timeframes."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+    timeframes: list[str] | None = Field(
+        default=None,
+        description="Timeframes to compare (default: ['15m', '1h', '4h', '1d'])",
+    )
+
+
+class TimeframeResultPayload(BaseModel):
+    """One timeframe result from the comparison."""
+
+    timeframe: str
+    p_value: float | None
+    is_cointegrated: bool
+    hedge_ratio: float | None
+    half_life: float | None
+    n_datapoints: int
+    adf_statistic: float | None
+
+
+class TimeframeResponse(BaseModel):
+    """Timeframe comparison research module response."""
+
+    module: Literal["timeframe_comparison"] = Field(
+        default="timeframe_comparison",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(
+        default="multi",
+        description="Always 'multi' for cross-timeframe analysis",
+    )
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Total datapoints across all timeframes")
+    results: list[TimeframeResultPayload] = Field(
+        default_factory=list,
+        description="Results per timeframe",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Not applicable for diagnostic module",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Spread Method Comparison research module
+# ---------------------------------------------------------------------------
+
+
+class SpreadMethodRequest(BaseModel):
+    """Request for spread method comparison analysis."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+
+
+class SpreadMethodResultPayload(BaseModel):
+    """One spread method result — scalar diagnostics only, no raw spread array."""
+
+    method: str
+    adf_statistic: float
+    adf_p_value: float
+    is_stationary: bool
+    spread_std: float
+    spread_skewness: float
+    spread_kurtosis: float
+
+
+class SpreadMethodResponse(BaseModel):
+    """Spread method comparison research module response."""
+
+    module: Literal["spread_method"] = Field(
+        default="spread_method",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of overlapping observations analyzed")
+    results: list[SpreadMethodResultPayload] = Field(
+        default_factory=list,
+        description="Results per spread construction method",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Not applicable for diagnostic module",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Z-score Threshold Sweep research module
+# ---------------------------------------------------------------------------
+
+
+class ZScoreThresholdRequest(BaseModel):
+    """Request for z-score entry/exit threshold sweep."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+    entry_range: list[float] | None = Field(
+        default=None,
+        description="Entry thresholds to sweep",
+    )
+    exit_range: list[float] | None = Field(
+        default=None,
+        description="Exit thresholds to sweep",
+    )
+    lookback_window: int = Field(default=60, ge=2, description="Rolling window for z-score")
+
+
+class ThresholdResultPayload(BaseModel):
+    """One entry/exit threshold combination result."""
+
+    entry: float
+    exit: float
+    total_trades: int
+    avg_duration: float | None
+    max_duration: int | None
+
+
+class ZScoreThresholdResponse(BaseModel):
+    """Z-score threshold sweep research module response."""
+
+    module: Literal["zscore_threshold"] = Field(
+        default="zscore_threshold",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of non-NaN z-score observations")
+    results: list[ThresholdResultPayload] = Field(
+        default_factory=list,
+        description="Results per entry/exit threshold combination",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Backtest request with best threshold combo, or None if no trades",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Transaction Cost Analysis research module
+# ---------------------------------------------------------------------------
+
+
+class TxCostRequest(BaseModel):
+    """Request for transaction cost sensitivity analysis."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+    fee_levels: list[float] | None = Field(
+        default=None,
+        description="One-way fee percentages to test",
+    )
+    entry_threshold: float = Field(default=2.0, description="Z-score entry threshold")
+    exit_threshold: float = Field(default=0.5, description="Z-score exit threshold")
+    lookback_window: int = Field(default=60, ge=2, description="Rolling window for z-score")
+
+
+class TxCostResultPayload(BaseModel):
+    """One fee level result from transaction cost analysis."""
+
+    fee_pct: float
+    round_trip_pct: float
+    total_trades: int
+    profitable_trades: int
+    avg_spread_pct: float
+    min_profitable_spread_pct: float
+    net_profitable_pct: float
+
+
+class TxCostResponse(BaseModel):
+    """Transaction cost analysis research module response."""
+
+    module: Literal["tx_cost"] = Field(
+        default="tx_cost",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of non-NaN z-score observations")
+    results: list[TxCostResultPayload] = Field(
+        default_factory=list,
+        description="Results per fee level",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Backtest request with Bitvavo fees and given thresholds",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Cointegration Method Comparison research module
+# ---------------------------------------------------------------------------
+
+
+class CointMethodRequest(BaseModel):
+    """Request for cointegration method comparison."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(default=365, ge=1, le=3650, description="Days of history to analyze")
+
+
+class CointMethodResultPayload(BaseModel):
+    """One cointegration method result."""
+
+    method: str
+    is_cointegrated: bool
+    detail: str
+    statistic: float
+    critical_value: float | None
+
+
+class CointMethodResponse(BaseModel):
+    """Cointegration method comparison research module response."""
+
+    module: Literal["coint_method"] = Field(
+        default="coint_method",
+        description="Stable research module identifier",
+    )
+    asset1: str = Field(description="First asset symbol analyzed")
+    asset2: str = Field(description="Second asset symbol analyzed")
+    timeframe: str = Field(description="Candle timeframe analyzed")
+    days_back: int = Field(description="History window applied to the cached data")
+    observations: int = Field(description="Number of overlapping observations analyzed")
+    results: list[CointMethodResultPayload] = Field(
+        default_factory=list,
+        description="Results per cointegration test method",
+    )
+    takeaway: ResearchTakeawayPayload
+    recommended_backtest_params: BacktestRequest | None = Field(
+        default=None,
+        description="Not applicable for diagnostic module",
+    )
+
+
 class LookbackWindowResultPayload(BaseModel):
     """One candidate z-score lookback window from the sweep."""
 

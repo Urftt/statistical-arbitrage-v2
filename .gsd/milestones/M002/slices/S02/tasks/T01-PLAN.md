@@ -176,3 +176,10 @@ Add the remaining 7 research modules as FastAPI endpoints, following the exact p
 - `api/schemas.py` — extended with 7 new request/response/result-payload model sets
 - `api/routers/research.py` — extended with 7 new endpoint handlers
 - `tests/test_research_api.py` — new file with contract tests for all 7 (or all 8 including lookback) endpoints
+
+## Observability Impact
+
+- **New endpoints**: 7 POST routes under `/api/research/` — each individually testable via curl/httpie and returns a `module` identifier for tracing
+- **Structured errors**: 404 on missing cache, 422 on insufficient data, 500 with `logger.exception()` traceback — consistent with S01 lookback pattern
+- **Inspection**: `GET /openapi.json` exposes all 8 research endpoint schemas for automated discovery
+- **Failure shape**: Every 500 includes the exception message in the `detail` field; server-side traceback is logged but not returned to the client
