@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Box, Divider, NavLink, Stack, Text } from '@mantine/core';
 import {
+  IconAdjustments,
   IconChartHistogram,
   IconChartLine,
   IconMicroscope,
@@ -37,6 +38,12 @@ const NAV_ITEMS = [
     href: '/backtest',
     icon: IconChartLine,
     description: 'Real engine results',
+  },
+  {
+    label: 'Optimize',
+    href: '/optimize',
+    icon: IconAdjustments,
+    description: 'Grid search & walk-forward',
   },
 ] as const;
 

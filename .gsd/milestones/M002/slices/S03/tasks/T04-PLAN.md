@@ -91,3 +91,12 @@ Build the React frontend surfaces for grid search and walk-forward validation: T
 - `frontend/components/optimize/WalkForwardPanel.tsx` — walk-forward panel with fold cards
 - `frontend/components/layout/Sidebar.tsx` — "Optimize" nav item added
 - `frontend/e2e/optimize.spec.ts` — E2E smoke tests for optimize page
+
+## Observability Impact
+
+- **New inspection surface:** `/optimize` page with two tabs — Grid Search and Walk-Forward — each with inline warning display for overfitting/fragility signals and robustness scoring
+- **Frontend console logging:** API fetch errors log to `console.error` with full URL and error message via the existing `apiFetch` wrapper, visible in browser dev tools
+- **Warning visibility:** Grid Search and Walk-Forward panels render `overfit_*`, `fragile_*`, and `wf_*` warning codes from backend responses as distinct colored `Alert` components — orange for overfitting, red for fragility, yellow for walk-forward divergence
+- **Test selectors:** `data-optimize-tab` and `data-optimize-panel` attributes enable E2E test targeting and DOM inspection
+- **Failure state visibility:** Red error `Alert` with full API error message when requests fail; loading skeletons during request execution; empty state with guidance text when no results exist
+- **Robustness indicator:** Color-coded badge (green/yellow/red) showing grid search robustness score percentage

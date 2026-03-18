@@ -490,6 +490,98 @@ export interface TxCostResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Grid Search Optimization
+// ---------------------------------------------------------------------------
+
+export interface ParameterAxisPayload {
+  name: string;
+  min_value: number;
+  max_value: number;
+  step: number;
+}
+
+export interface GridSearchCellPayload {
+  params: Record<string, number>;
+  metrics: MetricSummaryPayload;
+  trade_count: number;
+  status: 'ok' | 'blocked' | 'no_trades';
+}
+
+export interface GridSearchRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  axes: ParameterAxisPayload[];
+  base_strategy?: StrategyParametersPayload;
+  optimize_metric?: string;
+  max_combinations?: number;
+}
+
+export interface GridSearchResponse {
+  grid_shape: number[];
+  axes: ParameterAxisPayload[];
+  cells: GridSearchCellPayload[];
+  best_cell_index: number | null;
+  best_cell: GridSearchCellPayload | null;
+  optimize_metric: string;
+  total_combinations: number;
+  robustness_score: number | null;
+  warnings: EngineWarningPayload[];
+  execution_time_ms: number;
+  footer: HonestReportingFooterPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
+// Walk-Forward Validation
+// ---------------------------------------------------------------------------
+
+export interface WalkForwardFoldPayload {
+  fold_index: number;
+  train_start_idx: number;
+  train_end_idx: number;
+  test_start_idx: number;
+  test_end_idx: number;
+  train_bars: number;
+  test_bars: number;
+  best_params: Record<string, number>;
+  train_metrics: MetricSummaryPayload;
+  test_metrics: MetricSummaryPayload;
+  train_trade_count: number;
+  test_trade_count: number;
+  status: 'ok' | 'no_train_trades' | 'no_test_trades' | 'blocked';
+}
+
+export interface WalkForwardRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  days_back: number;
+  axes: ParameterAxisPayload[];
+  base_strategy?: StrategyParametersPayload;
+  fold_count?: number;
+  train_pct?: number;
+  optimize_metric?: string;
+  max_combinations_per_fold?: number;
+}
+
+export interface WalkForwardResponse {
+  folds: WalkForwardFoldPayload[];
+  fold_count: number;
+  train_pct: number;
+  axes: ParameterAxisPayload[];
+  aggregate_train_sharpe: number | null;
+  aggregate_test_sharpe: number | null;
+  train_test_divergence: number | null;
+  stability_verdict: 'stable' | 'moderate' | 'fragile';
+  warnings: EngineWarningPayload[];
+  execution_time_ms: number;
+  footer: HonestReportingFooterPayload;
+  recommended_backtest_params: BacktestRequest | null;
+}
+
+// ---------------------------------------------------------------------------
 // Cointegration Method Comparison research module
 // ---------------------------------------------------------------------------
 
@@ -773,6 +865,38 @@ export async function postCointMethodComparison(
 ): Promise<CointMethodResponse> {
   return apiFetch<CointMethodResponse>(
     `${API_BASE_URL}/api/research/coint-method`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Optimization API functions
+// ---------------------------------------------------------------------------
+
+/** Run a bounded grid search over strategy parameters. */
+export async function postGridSearch(
+  req: GridSearchRequest
+): Promise<GridSearchResponse> {
+  return apiFetch<GridSearchResponse>(
+    `${API_BASE_URL}/api/optimization/grid-search`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }
+  );
+}
+
+/** Run walk-forward validation with rolling train/test windows. */
+export async function postWalkForward(
+  req: WalkForwardRequest
+): Promise<WalkForwardResponse> {
+  return apiFetch<WalkForwardResponse>(
+    `${API_BASE_URL}/api/optimization/walk-forward`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
