@@ -818,3 +818,84 @@ class GridSearchResponse(BaseModel):
     execution_time_ms: float = Field(ge=0)
     footer: HonestReportingFooterPayload
     recommended_backtest_params: BacktestRequest | None = None
+
+
+# ---------------------------------------------------------------------------
+# Walk-Forward Validation
+# ---------------------------------------------------------------------------
+
+
+class WalkForwardFoldPayload(BaseModel):
+    """One train/test fold in a walk-forward validation run."""
+
+    fold_index: int
+    train_start_idx: int
+    train_end_idx: int
+    test_start_idx: int
+    test_end_idx: int
+    train_bars: int
+    test_bars: int
+    best_params: dict[str, float]
+    train_metrics: MetricSummaryPayload
+    test_metrics: MetricSummaryPayload
+    train_trade_count: int
+    test_trade_count: int
+    status: Literal["ok", "no_train_trades", "no_test_trades", "blocked"]
+
+
+class WalkForwardRequest(BaseModel):
+    """Request to run walk-forward validation on a pair."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(
+        default=365,
+        ge=1,
+        le=3650,
+        description="Days of history to analyze",
+    )
+    axes: list[ParameterAxisPayload] = Field(
+        description="Parameter axes to sweep in each fold's grid search",
+    )
+    base_strategy: StrategyParametersPayload = Field(
+        default_factory=_default_strategy_payload,
+        description="Base strategy parameters — axis fields are overridden",
+    )
+    fold_count: int = Field(
+        default=5,
+        ge=2,
+        description="Number of train/test folds",
+    )
+    train_pct: float = Field(
+        default=0.6,
+        ge=0.3,
+        le=0.9,
+        description="Fraction of each fold's window used for training",
+    )
+    optimize_metric: str = Field(
+        default="sharpe_ratio",
+        description="MetricSummary field to maximize",
+    )
+    max_combinations_per_fold: int = Field(
+        default=500,
+        ge=1,
+        description="Hard limit on grid combos per fold",
+    )
+
+
+class WalkForwardResponse(BaseModel):
+    """Walk-forward validation result with per-fold details and aggregate summary."""
+
+    folds: list[WalkForwardFoldPayload]
+    fold_count: int
+    train_pct: float
+    axes: list[ParameterAxisPayload]
+    aggregate_train_sharpe: float | None = None
+    aggregate_test_sharpe: float | None = None
+    train_test_divergence: float | None = None
+    stability_verdict: Literal["stable", "moderate", "fragile"]
+    warnings: list[EngineWarningPayload] = Field(default_factory=list)
+    execution_time_ms: float
+    footer: HonestReportingFooterPayload
+    recommended_backtest_params: BacktestRequest | None = None

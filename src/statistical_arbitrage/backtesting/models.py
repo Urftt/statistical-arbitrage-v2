@@ -193,6 +193,45 @@ class GridSearchCell(BacktestModel):
     status: Literal["ok", "blocked", "no_trades"]
 
 
+class WalkForwardFold(BacktestModel):
+    """One train/test fold in a walk-forward validation run."""
+
+    fold_index: int = Field(ge=0)
+    train_start_idx: int = Field(ge=0)
+    train_end_idx: int = Field(ge=0)
+    test_start_idx: int = Field(ge=0)
+    test_end_idx: int = Field(ge=0)
+    train_bars: int = Field(ge=0)
+    test_bars: int = Field(ge=0)
+    best_params: dict[str, float] = Field(
+        default_factory=dict,
+        description="Axis name → optimized value from train-window grid search",
+    )
+    train_metrics: MetricSummary
+    test_metrics: MetricSummary
+    train_trade_count: int = Field(ge=0)
+    test_trade_count: int = Field(ge=0)
+    status: Literal["ok", "no_train_trades", "no_test_trades", "blocked"] = "ok"
+
+
+class WalkForwardResult(BacktestModel):
+    """Aggregated walk-forward validation output."""
+
+    folds: list[WalkForwardFold]
+    fold_count: int = Field(ge=0)
+    train_pct: float = Field(gt=0, lt=1)
+    axes: list[ParameterAxis]
+    aggregate_train_sharpe: float | None = None
+    aggregate_test_sharpe: float | None = None
+    train_test_divergence: float | None = Field(
+        default=None,
+        description="Ratio of test Sharpe to train Sharpe — <0.5 is suspicious",
+    )
+    stability_verdict: Literal["stable", "moderate", "fragile"] = "fragile"
+    warnings: list[EngineWarning] = Field(default_factory=list)
+    execution_time_ms: float = Field(ge=0)
+
+
 class GridSearchResult(BacktestModel):
     """Complete grid search output with robustness and overfitting analysis."""
 
