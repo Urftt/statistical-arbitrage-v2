@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class BacktestModel(BaseModel):
@@ -161,3 +161,51 @@ class BacktestResult(BacktestModel):
     trades: list[TradeLedgerRow] = Field(default_factory=list)
     equity_curve: list[EquityPoint] = Field(default_factory=list)
     metrics: MetricSummary
+
+
+# ---------------------------------------------------------------------------
+# Grid Search models
+# ---------------------------------------------------------------------------
+
+
+class ParameterAxis(BacktestModel):
+    """One axis of the grid search: a named parameter with min/max/step."""
+
+    name: str = Field(description="Must be a valid StrategyParameters field name")
+    min_value: float
+    max_value: float
+    step: float = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _check_range(self) -> ParameterAxis:
+        if self.min_value >= self.max_value:
+            msg = f"min_value ({self.min_value}) must be less than max_value ({self.max_value})"
+            raise ValueError(msg)
+        return self
+
+
+class GridSearchCell(BacktestModel):
+    """One cell in the grid search result matrix."""
+
+    params: dict[str, float] = Field(description="Axis name → parameter value")
+    metrics: MetricSummary
+    trade_count: int = Field(ge=0)
+    status: Literal["ok", "blocked", "no_trades"]
+
+
+class GridSearchResult(BacktestModel):
+    """Complete grid search output with robustness and overfitting analysis."""
+
+    cells: list[GridSearchCell]
+    grid_shape: list[int] = Field(description="Per-axis dimension count")
+    axes: list[ParameterAxis]
+    best_cell_index: int | None = None
+    best_cell: GridSearchCell | None = None
+    optimize_metric: str
+    total_combinations: int = Field(ge=0)
+    robustness_score: float | None = Field(
+        default=None,
+        description="Fraction of best-cell neighbors within 80% of best metric",
+    )
+    warnings: list[EngineWarning] = Field(default_factory=list)
+    execution_time_ms: float = Field(ge=0)

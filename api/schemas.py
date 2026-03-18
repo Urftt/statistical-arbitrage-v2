@@ -748,3 +748,73 @@ class LookbackSweepResponse(BaseModel):
     recommended_backtest_params: BacktestRequest = Field(
         description="A fully valid backtest request that can be posted directly to /api/backtest",
     )
+
+
+# ---------------------------------------------------------------------------
+# Grid Search Optimization
+# ---------------------------------------------------------------------------
+
+
+class ParameterAxisPayload(BaseModel):
+    """One axis of a grid search sweep."""
+
+    name: str = Field(description="StrategyParameters field name to sweep")
+    min_value: float = Field(description="Start of the range (inclusive)")
+    max_value: float = Field(description="End of the range (inclusive)")
+    step: float = Field(gt=0, description="Step between values")
+
+
+class GridSearchCellPayload(BaseModel):
+    """One cell in the grid search result matrix."""
+
+    params: dict[str, float] = Field(description="Axis name → parameter value")
+    metrics: MetricSummaryPayload
+    trade_count: int = Field(ge=0)
+    status: Literal["ok", "blocked", "no_trades"]
+
+
+class GridSearchRequest(BaseModel):
+    """Request to run a bounded grid search over strategy parameters."""
+
+    asset1: str = Field(description="First asset symbol (e.g. ETH/EUR)")
+    asset2: str = Field(description="Second asset symbol (e.g. ETC/EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    days_back: int = Field(
+        default=365,
+        ge=1,
+        le=3650,
+        description="Days of history to analyze",
+    )
+    axes: list[ParameterAxisPayload] = Field(
+        description="Parameter axes to sweep",
+    )
+    base_strategy: StrategyParametersPayload = Field(
+        default_factory=_default_strategy_payload,
+        description="Base strategy parameters — axis fields are overridden per cell",
+    )
+    optimize_metric: str = Field(
+        default="sharpe_ratio",
+        description="MetricSummary field to maximize",
+    )
+    max_combinations: int = Field(
+        default=500,
+        ge=1,
+        description="Hard limit on total parameter combinations",
+    )
+
+
+class GridSearchResponse(BaseModel):
+    """Complete grid search result with robustness and overfitting analysis."""
+
+    grid_shape: list[int] = Field(description="Per-axis dimension count")
+    axes: list[ParameterAxisPayload]
+    cells: list[GridSearchCellPayload]
+    best_cell_index: int | None = None
+    best_cell: GridSearchCellPayload | None = None
+    optimize_metric: str
+    total_combinations: int = Field(ge=0)
+    robustness_score: float | None = None
+    warnings: list[EngineWarningPayload] = Field(default_factory=list)
+    execution_time_ms: float = Field(ge=0)
+    footer: HonestReportingFooterPayload
+    recommended_backtest_params: BacktestRequest | None = None
