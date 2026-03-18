@@ -73,3 +73,7 @@ The FastAPI backend returns `timestamps: number[]` in the `CointegrationResponse
 ## Mantine `Select` needs an explicit option commit in browser automation
 
 In this frontend, typing into a Mantine `Select` textbox updates the visible input value but does **not** update the paired hidden input that drives the real form state. For browser verification, commit the selection with `ArrowDown` + `Enter` (or click an option) and verify the hidden input changed. If the page still shows the "Select asset 1, asset 2..." empty state after typing, the selection was never committed.
+
+## Mantine NumberInput accessible name comes from the `label` prop
+
+Mantine `NumberInput` renders as `<input role="textbox">` whose accessible name is the `label` prop value (e.g., `"Min"`, `"Max"`, `"Step"`, `"Folds"`). It does NOT add `aria-label`. In Playwright, select these with `getByRole('textbox', { name: 'Min' })` or `getByLabel('Min')`, not `locator('input[aria-label="Min"]')`. When multiple inputs share the same label (e.g., two axes both have "Min"), use `.first()` / `.nth(1)` indexing.

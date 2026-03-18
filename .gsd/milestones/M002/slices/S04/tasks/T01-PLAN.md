@@ -134,3 +134,19 @@ This task creates `frontend/e2e/integration-flows.spec.ts` with 4–5 tests exer
 - `frontend/e2e/integration-flows.spec.ts` — new E2E spec with 4–5 integration flow tests
 - Possible bug-fix changes in frontend components or API if integration issues discovered
 - All E2E tests (22 existing + new) passing in `cd frontend && npm run test:e2e`
+
+## Observability Impact
+
+**New signals:**
+- 5 new Playwright E2E tests exercise real API→UI flows; their PASS/FAIL status is the primary runtime signal for integration health
+- Each test produces a failure screenshot + error-context.md on failure, stored in `frontend/test-results/`
+
+**Inspection:**
+- `REUSE_SERVERS=1 npx playwright test e2e/integration-flows.spec.ts` — targeted run of integration tests only
+- `npx playwright show-report` — HTML report with screenshots and traces for debugging
+- Playwright `list` reporter outputs per-test timing, visible in CI logs
+
+**Failure state visibility:**
+- Pair selection failure: test times out on `waitForTimeout(500)` after Mantine Select commit; screenshot shows empty-state alert
+- API failure: test times out waiting for `.js-plotly-plot` chart; screenshot shows error Alert with API message
+- CTA handoff failure: URL assertion shows expected vs actual URL params diff in Playwright output

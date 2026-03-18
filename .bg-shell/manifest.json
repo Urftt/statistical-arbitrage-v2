@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "874ecee2",
+    "label": "FastAPI",
+    "command": "cd /Users/luckleineschaars/repos/statistical-arbitrage-v2 && uv run python run_api.py",
+    "cwd": "/Users/luckleineschaars/repos/statistical-arbitrage-v2",
+    "startedAt": 1773823613336,
+    "processType": "server",
+    "group": "dev",
+    "readyPattern": null,
+    "readyPort": 8000,
+    "pid": 39962
+  }
+]

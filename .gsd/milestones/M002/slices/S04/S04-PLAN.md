@@ -34,7 +34,7 @@
 
 ## Tasks
 
-- [ ] **T01: Write E2E integration flow tests and fix discovered bugs** `est:45m`
+- [x] **T01: Write E2E integration flow tests and fix discovered bugs** `est:45m`
   - Why: S01–S03 built all backend and frontend surfaces but E2E tests only cover structural smoke (page loads, tabs switch). No test exercises a real research run, a real backtest, or a CTA handoff. The milestone's acceptance criteria (D017) require live connected-flow verification through the real entrypoints.
   - Files: `frontend/e2e/integration-flows.spec.ts` (new), plus any bug-fix files discovered during test runs
   - Do: Run baseline gates (pytest, build, e2e) to confirm green. Create `integration-flows.spec.ts` with 4–5 tests covering: (1) research lookback module run → result rendering, (2) research→backtest CTA handoff with URL param verification, (3) backtest execution with result view rendering, (4) grid search run → "Use best params" CTA link verification, (5) walk-forward run → stability verdict rendering. Use BTC-EUR + ETH-EUR pair via header selects (Mantine Select commit pattern: type → ArrowDown → Enter). Use `{ timeout: 30_000 }` for API-dependent assertions. Fix any integration bugs found.
@@ -55,3 +55,22 @@
 - `.gsd/REQUIREMENTS.md` (requirement status updates)
 - `.gsd/STATE.md` (milestone closure)
 - Possible bug-fix files if integration tests reveal issues
+
+## Observability / Diagnostics
+
+**Runtime signals:**
+- `cd frontend && npm run test:e2e` — Playwright outputs per-test PASS/FAIL with timing; test-results/ contains failure screenshots
+- Playwright `list` reporter shows sequential test names with ✓/✘ status for every run
+- On failure: `test-results/<test-name>/` contains screenshot, error-context.md, and optional trace zip
+
+**Inspection surfaces:**
+- `frontend/e2e/integration-flows.spec.ts` — the spec file is the primary artifact; each test maps to one must-have
+- `npx playwright show-report` (from frontend/) after any run opens the HTML report with screenshots and traces
+- API calls hit real `/api/research/*`, `/api/backtest`, `/api/optimize/*` endpoints — server logs show request/response timing
+
+**Failure visibility:**
+- Mantine Select commit failures → tests time out waiting for pair context propagation; visible as "Select asset 1, asset 2..." alert staying on screen
+- API errors → tests time out waiting for `.js-plotly-plot` or takeaway alerts; screenshot shows error Alert instead of results
+- CTA handoff failures → URL assertion fails with actual vs expected URL diff
+
+**Redaction:** No secrets in test code or outputs — all data is public cached OHLCV.
