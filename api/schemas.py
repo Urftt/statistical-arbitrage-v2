@@ -899,3 +899,135 @@ class WalkForwardResponse(BaseModel):
     execution_time_ms: float
     footer: HonestReportingFooterPayload
     recommended_backtest_params: BacktestRequest | None = None
+
+
+# ---------------------------------------------------------------------------
+# Trading Session schemas (paper + live)
+# ---------------------------------------------------------------------------
+
+
+class CreateSessionRequest(BaseModel):
+    """Request to create a new paper or live trading session."""
+
+    asset1: str = Field(description="First asset symbol (e.g. BTC)")
+    asset2: str = Field(description="Second asset symbol (e.g. EUR)")
+    timeframe: str = Field(default="1h", description="Candle timeframe (e.g. 1h, 4h)")
+    is_live: bool = Field(default=False, description="True for live trading, False for paper")
+    lookback_window: int = Field(default=60, ge=2, description="Rolling window size for z-score")
+    entry_threshold: float = Field(default=2.0, description="Z-score entry threshold")
+    exit_threshold: float = Field(default=0.5, description="Z-score exit threshold")
+    stop_loss: float = Field(default=3.0, description="Z-score stop-loss threshold")
+    initial_capital: float = Field(default=10000.0, description="Initial capital (EUR)")
+    position_size: float = Field(default=0.5, ge=0.0, le=1.0, description="Fraction of capital per position")
+    transaction_fee: float = Field(default=0.0025, description="Transaction fee as decimal (0.25% = 0.0025)")
+
+
+class PositionResponse(BaseModel):
+    """An open position in a trading session."""
+
+    session_id: str
+    symbol: str
+    direction: str
+    quantity_asset1: float
+    quantity_asset2: float
+    entry_price_asset1: float
+    entry_price_asset2: float
+    hedge_ratio: float
+    entry_fee: float = 0.0
+    allocated_capital: float = 0.0
+    opened_at: str
+
+
+class TradeResponse(BaseModel):
+    """A completed round-trip trade."""
+
+    session_id: str
+    trade_id: int
+    direction: str
+    entry_timestamp: str
+    exit_timestamp: str
+    entry_reason: str
+    exit_reason: str
+    bars_held: int
+    entry_zscore: float
+    exit_zscore: float
+    hedge_ratio: float
+    quantity_asset1: float
+    quantity_asset2: float
+    entry_price_asset1: float
+    entry_price_asset2: float
+    exit_price_asset1: float
+    exit_price_asset2: float
+    allocated_capital: float
+    gross_pnl: float
+    total_fees: float
+    net_pnl: float
+    return_pct: float
+    equity_after_trade: float
+
+
+class EquityPointResponse(BaseModel):
+    """An equity snapshot at a point in time."""
+
+    session_id: str
+    timestamp: str
+    equity: float
+    cash: float
+    unrealized_pnl: float
+    position: str
+
+
+class OrderResponse(BaseModel):
+    """A live order submitted to the exchange."""
+
+    order_id: str
+    session_id: str
+    side: str
+    symbol: str
+    requested_amount: float
+    filled_amount: float = 0.0
+    fill_price: float = 0.0
+    fee: float = 0.0
+    status: str = "pending"
+    created_at: str
+    filled_at: str | None = None
+
+
+class SessionResponse(BaseModel):
+    """Summary of a trading session."""
+
+    session_id: str
+    config: dict = Field(description="Serialized SessionConfig")
+    status: str
+    created_at: str
+    updated_at: str
+    current_equity: float
+    total_trades: int
+    last_error: str | None = None
+    is_live: bool = False
+
+
+class SessionListResponse(BaseModel):
+    """List of all trading sessions."""
+
+    sessions: list[SessionResponse]
+
+
+class SessionDetailResponse(SessionResponse):
+    """Full session detail including positions, trades, equity, and orders."""
+
+    positions: list[PositionResponse] = Field(default_factory=list)
+    trades: list[TradeResponse] = Field(default_factory=list)
+    equity_history: list[EquityPointResponse] = Field(default_factory=list)
+    orders: list[OrderResponse] = Field(default_factory=list)
+
+
+class KillSwitchResponse(BaseModel):
+    """Result of the kill switch operation."""
+
+    success: bool
+    session_id: str
+    orders_submitted: int = 0
+    orders_failed: int = 0
+    positions_closed: int = 0
+    errors: list[str] = Field(default_factory=list)

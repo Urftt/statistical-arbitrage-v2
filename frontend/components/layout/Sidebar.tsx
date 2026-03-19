@@ -7,6 +7,7 @@ import {
   IconAdjustments,
   IconChartHistogram,
   IconChartLine,
+  IconHeartRateMonitor,
   IconMicroscope,
   IconSchool,
   IconSearch,
@@ -44,6 +45,12 @@ const NAV_ITEMS = [
     href: '/optimize',
     icon: IconAdjustments,
     description: 'Grid search & walk-forward',
+  },
+  {
+    label: 'Trading',
+    href: '/trading',
+    icon: IconHeartRateMonitor,
+    description: 'Paper & live sessions',
   },
 ] as const;
 

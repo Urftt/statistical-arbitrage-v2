@@ -118,12 +118,67 @@ class StrategySettings(BaseSettings):
     )
 
 
+class LiveTradingSettings(BaseSettings):
+    """Risk limits and defaults for live trading on Bitvavo.
+
+    Conservative defaults: small position sizes, strict loss limits.
+    All EUR amounts are portfolio-level unless noted otherwise.
+    """
+
+    max_position_size_eur: float = Field(
+        default=25.0,
+        description="Maximum EUR value per single trade (€25 default)",
+    )
+    max_concurrent_positions: int = Field(
+        default=2,
+        description="Maximum number of open positions at once",
+    )
+    daily_loss_limit_eur: float = Field(
+        default=50.0,
+        description="Portfolio-level daily realized loss limit (EUR)",
+    )
+    min_order_size_eur: float = Field(
+        default=5.0,
+        description="Bitvavo minimum order size (EUR)",
+    )
+    default_trade_size_eur: float = Field(
+        default=10.0,
+        description="Default trade size when no override is given (EUR)",
+    )
+
+
+class TelegramSettings(BaseSettings):
+    """Telegram Bot API configuration for trade notifications.
+
+    Empty defaults = notifications disabled (graceful no-op).
+    Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in config/.env to enable.
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=PROJECT_ROOT / "config" / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    telegram_bot_token: str = Field(
+        default="",
+        description="Telegram Bot API token (from @BotFather)",
+    )
+    telegram_chat_id: str = Field(
+        default="",
+        description="Telegram chat/group ID to send notifications to",
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings."""
 
     bitvavo: BitvavoSettings = Field(default_factory=BitvavoSettings)
     data: DataSettings = Field(default_factory=DataSettings)
     strategy: StrategySettings = Field(default_factory=StrategySettings)
+    live_trading: LiveTradingSettings = Field(default_factory=LiveTradingSettings)
+    telegram: TelegramSettings = Field(default_factory=TelegramSettings)
 
     # General settings
     log_level: str = Field(default="INFO", description="Logging level")

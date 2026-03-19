@@ -79,3 +79,4 @@ tmp/
 # ── GSD baseline (auto-generated) ──
 .gsd
 .bg-shell
+*.db

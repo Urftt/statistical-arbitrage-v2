@@ -904,3 +904,242 @@ export async function postWalkForward(
     }
   );
 }
+
+// ---------------------------------------------------------------------------
+// Trading session interfaces — match api/schemas.py trading models
+// ---------------------------------------------------------------------------
+
+export interface CreateSessionRequest {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  is_live: boolean;
+  lookback_window?: number;
+  entry_threshold?: number;
+  exit_threshold?: number;
+  stop_loss?: number;
+  initial_capital?: number;
+  position_size?: number;
+  transaction_fee?: number;
+}
+
+export interface SessionConfig {
+  asset1: string;
+  asset2: string;
+  timeframe: string;
+  is_live: boolean;
+  lookback_window: number;
+  entry_threshold: number;
+  exit_threshold: number;
+  stop_loss: number;
+  initial_capital: number;
+  position_size: number;
+  transaction_fee: number;
+}
+
+export interface SessionResponse {
+  session_id: string;
+  config: SessionConfig;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  current_equity: number;
+  total_trades: number;
+  last_error: string | null;
+  is_live: boolean;
+}
+
+export interface SessionListResponse {
+  sessions: SessionResponse[];
+}
+
+export interface PositionResponse {
+  session_id: string;
+  symbol: string;
+  direction: string;
+  quantity_asset1: number;
+  quantity_asset2: number;
+  entry_price_asset1: number;
+  entry_price_asset2: number;
+  hedge_ratio: number;
+  entry_fee: number;
+  allocated_capital: number;
+  opened_at: string;
+}
+
+export interface TradeResponse {
+  session_id: string;
+  trade_id: number;
+  direction: string;
+  entry_timestamp: string;
+  exit_timestamp: string;
+  entry_reason: string;
+  exit_reason: string;
+  bars_held: number;
+  entry_zscore: number;
+  exit_zscore: number;
+  hedge_ratio: number;
+  quantity_asset1: number;
+  quantity_asset2: number;
+  entry_price_asset1: number;
+  entry_price_asset2: number;
+  exit_price_asset1: number;
+  exit_price_asset2: number;
+  allocated_capital: number;
+  gross_pnl: number;
+  total_fees: number;
+  net_pnl: number;
+  return_pct: number;
+  equity_after_trade: number;
+}
+
+export interface EquityPointResponse {
+  session_id: string;
+  timestamp: string;
+  equity: number;
+  cash: number;
+  unrealized_pnl: number;
+  position: string;
+}
+
+export interface OrderResponse {
+  order_id: string;
+  session_id: string;
+  side: string;
+  symbol: string;
+  requested_amount: number;
+  filled_amount: number;
+  fill_price: number;
+  fee: number;
+  status: string;
+  created_at: string;
+  filled_at: string | null;
+}
+
+export interface SessionDetailResponse extends SessionResponse {
+  positions: PositionResponse[];
+  trades: TradeResponse[];
+  equity_history: EquityPointResponse[];
+  orders: OrderResponse[];
+}
+
+export interface KillSwitchResponse {
+  success: boolean;
+  session_id: string;
+  orders_submitted: number;
+  orders_failed: number;
+  positions_closed: number;
+  errors: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Trading session API functions
+// ---------------------------------------------------------------------------
+
+/** Fetch all trading sessions. */
+export async function fetchTradingSessions(): Promise<SessionListResponse> {
+  return apiFetch<SessionListResponse>(`${API_BASE_URL}/api/trading/sessions`);
+}
+
+/** Create a new paper or live trading session. */
+export async function createTradingSession(
+  req: CreateSessionRequest
+): Promise<SessionResponse> {
+  return apiFetch<SessionResponse>(`${API_BASE_URL}/api/trading/sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+}
+
+/** Fetch full session detail including positions, trades, equity, and orders. */
+export async function fetchTradingSession(
+  sessionId: string
+): Promise<SessionDetailResponse> {
+  return apiFetch<SessionDetailResponse>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}`
+  );
+}
+
+/** Start a trading session. */
+export async function startTradingSession(
+  sessionId: string
+): Promise<SessionResponse> {
+  return apiFetch<SessionResponse>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/start`,
+    { method: 'POST' }
+  );
+}
+
+/** Stop a trading session. */
+export async function stopTradingSession(
+  sessionId: string
+): Promise<SessionResponse> {
+  return apiFetch<SessionResponse>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/stop`,
+    { method: 'POST' }
+  );
+}
+
+/** Emergency kill switch — flatten positions and kill a live session. */
+export async function killTradingSession(
+  sessionId: string
+): Promise<KillSwitchResponse> {
+  return apiFetch<KillSwitchResponse>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/kill`,
+    { method: 'POST' }
+  );
+}
+
+/** Delete a trading session. */
+export async function deleteTradingSession(
+  sessionId: string
+): Promise<void> {
+  const url = `${API_BASE_URL}/api/trading/sessions/${sessionId}`;
+  let response: Response;
+  try {
+    response = await fetch(url, { method: 'DELETE' });
+  } catch (err) {
+    const message = `API fetch failed: ${url} — ${err instanceof Error ? err.message : String(err)}`;
+    console.error(message);
+    throw new Error(message);
+  }
+  if (!response.ok) {
+    let detail = '';
+    try {
+      const payload = (await response.json()) as { detail?: string };
+      if (payload.detail) detail = ` — ${payload.detail}`;
+    } catch { /* ignore */ }
+    const message = `API error: ${response.status} ${response.statusText} — ${url}${detail}`;
+    console.error(message);
+    throw new Error(message);
+  }
+  // 204 No Content — no body to parse
+}
+
+/** Fetch all trades for a session. */
+export async function fetchSessionTrades(
+  sessionId: string
+): Promise<TradeResponse[]> {
+  return apiFetch<TradeResponse[]>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/trades`
+  );
+}
+
+/** Fetch equity history for a session. */
+export async function fetchSessionEquity(
+  sessionId: string
+): Promise<EquityPointResponse[]> {
+  return apiFetch<EquityPointResponse[]>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/equity`
+  );
+}
+
+/** Fetch all orders for a session. */
+export async function fetchSessionOrders(
+  sessionId: string
+): Promise<OrderResponse[]> {
+  return apiFetch<OrderResponse[]>(
+    `${API_BASE_URL}/api/trading/sessions/${sessionId}/orders`
+  );
+}
